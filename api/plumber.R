@@ -1,7 +1,15 @@
 library(plumber)
 
+ruta_proyecto <- Sys.getenv("PHYSIKOS_PROJECT_DIR", unset = "")
+
+if (!nzchar(ruta_proyecto)) {
+  stop(
+    "No se definió PHYSIKOS_PROJECT_DIR. Inicie la API con api/iniciar_api.R."
+  )
+}
+
 CARPETA_PROYECTO <- normalizePath(
-  "C:/Users/Usuario/Desktop/generador_examenes",
+  ruta_proyecto,
   winslash = "/",
   mustWork = TRUE
 )
@@ -37,19 +45,40 @@ source(
 #* @apiTitle API del generador de exámenes Physikos
 #* @apiDescription Generación de evaluaciones aleatorias y solucionarios
 
-#* Mostrar detalles de errores durante el desarrollo. BORRRAR AL PUBLICAR LA APP! 
+# Mostrar detalles internos únicamente cuando se habiliten explícitamente.
 #* @plumber
 function(pr) {
-  plumber::pr_set_debug(pr, TRUE)
+  modo_debug <- tolower(
+    Sys.getenv("PLUMBER_DEBUG", unset = "false")
+  ) %in% c("1", "true", "yes", "si")
+
+  plumber::pr_set_debug(pr, modo_debug)
 }
 
-# Permitir peticiones desde React durante el desarrollo
+# Permitir únicamente los orígenes configurados.
 #* @filter cors
 function(req, res) {
-  res$setHeader(
-    "Access-Control-Allow-Origin",
-    "http://localhost:5173"
+  origenes_permitidos <- strsplit(
+    Sys.getenv(
+      "CORS_ALLOWED_ORIGINS",
+      unset = paste(
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://fercharicastillo.github.io",
+        sep = ","
+      )
+    ),
+    split = ",",
+    fixed = TRUE
   )
+
+  origenes_permitidos <- trimws(origenes_permitidos[[1]])
+  origen_solicitud <- req$HTTP_ORIGIN %||% ""
+
+  if (origen_solicitud %in% origenes_permitidos) {
+    res$setHeader("Access-Control-Allow-Origin", origen_solicitud)
+    res$setHeader("Vary", "Origin")
+  }
   
   res$setHeader(
     "Access-Control-Allow-Methods",
