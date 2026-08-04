@@ -3,6 +3,7 @@ import {
   construirUrlDescarga,
   generarExamenes,
   obtenerPlantillas,
+  verificarSalud,
 } from "./api";
 import "./App.css";
 
@@ -29,6 +30,9 @@ function App() {
   const [error, setError] = useState("");
   const [resultado, setResultado] = useState(null);
 
+  const [estadoMotor, setEstadoMotor] =
+  useState("conectando");
+
   const estudiantes = useMemo(() => {
     return textoEstudiantes
       .split("\n")
@@ -37,25 +41,51 @@ function App() {
   }, [textoEstudiantes]);
 
   useEffect(() => {
-    async function cargarPlantillas() {
-      try {
-        const respuesta = await obtenerPlantillas();
-        const disponibles = respuesta.plantillas || [];
+  // CODEX: añadido para comprobar la API antes de cargar plantillas.
+  async function iniciarAplicacion() {
+    setEstadoMotor("conectando");
+    setError("");
 
-        setPlantillas(disponibles);
+    try {
+      const salud = await verificarSalud();
 
-        if (disponibles.length > 0) {
-          setPlantilla(String(disponibles[0].id));
-        }
-      } catch (error) {
-        setError(
-          `No fue posible cargar las plantillas: ${error.message}`
+      const estadoSalud = Array.isArray(salud.estado)
+        ? salud.estado[0]
+        : salud.estado;
+
+      if (estadoSalud !== "ok") {
+        throw new Error(
+          "El motor respondió con un estado inesperado."
         );
       }
-    }
 
-    cargarPlantillas();
-  }, []);
+      setEstadoMotor("conectado");
+
+      const respuesta = await obtenerPlantillas();
+      const disponibles = respuesta.plantillas || [];
+
+      setPlantillas(disponibles);
+
+      if (disponibles.length > 0) {
+        const primerId = Array.isArray(disponibles[0].id)
+          ? disponibles[0].id[0]
+          : disponibles[0].id;
+
+        setPlantilla(String(primerId));
+      }
+    } catch (error) {
+      setEstadoMotor("desconectado");
+      setPlantillas([]);
+
+      setError(
+        `No fue posible conectar con el motor: ${error.message}`
+      );
+    }
+  }
+
+  iniciarAplicacion();
+}, []);
+
 
   async function manejarGeneracion(evento) {
     evento.preventDefault();
@@ -92,6 +122,21 @@ function App() {
       setCargando(false);
     }
   }
+
+const informacionMotor = {
+  conectando: {
+    texto: "Conectando...",
+    clase: "status-connecting",
+  },
+  conectado: {
+    texto: "Motor conectado",
+    clase: "status-connected",
+  },
+  desconectado: {
+    texto: "Motor no disponible",
+    clase: "status-disconnected",
+  },
+}[estadoMotor];
 
   return (
     <div className="app-shell">
@@ -154,7 +199,8 @@ function App() {
                 <h2>Configurar evaluación</h2>
               </div>
 
-              <span className="status">Motor conectado</span>
+              <span className={`status ${informacionMotor.clase}`} role="status" aria-live="polite">
+              <span className="status-dot" aria-hidden="true"/>{informacionMotor.texto}</span>
             </div>
 
             <label className="field">
@@ -241,15 +287,21 @@ function App() {
             <button
               className="primary-button"
               type="submit"
-              disabled={cargando}
+              disabled={
+                cargando || estadoMotor !== "conectado"
+              }
             >
-              {cargando
-                ? "Generando PDF..."
-                : `Generar ${estudiantes.length} ${
-                    estudiantes.length === 1 
-                    ? "evaluación" 
-                    : "evaluaciones"
-                  }`}
+              {estadoMotor === "conectando"
+                ? "Conectando con el motor..."
+                : estadoMotor === "desconectado"
+                  ? "Motor no disponible"
+                  : cargando
+                    ? "Generando PDF..."
+                    : `           Generar ${estudiantes.length} ${
+                        estudiantes.length === 1
+                          ? "evaluación"
+                          : "evaluaciones"
+                      }`}
             </button>
           </form>
 

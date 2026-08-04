@@ -16,6 +16,12 @@ async function leerRespuesta(response) {
   return contenido;
 }
 
+export async function verificarSalud() {
+  const response = await fetch(`${API_URL}/salud`);
+
+  return leerRespuesta(response);
+}
+
 export async function obtenerPlantillas() {
   const response = await fetch(`${API_URL}/plantillas`);
 

@@ -202,12 +202,50 @@ textarea {
 }
 
 .status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   padding: 7px 10px;
   border-radius: 999px;
-  color: #087a63;
-  background: #e1f8f1;
   font-size: 12px;
   font-weight: 700;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-connected {
+  color: #087a63;
+  background: #e1f8f1;
+}
+
+.status-connecting {
+  color: #9a6410;
+  background: #fff4d8;
+}
+
+.status-connecting .status-dot {
+  animation: status-pulse 1s ease-in-out infinite;
+}
+
+.status-disconnected {
+  color: #a12c3a;
+  background: #ffebee;
+}
+
+@keyframes status-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 .field {
