@@ -30,61 +30,103 @@ textarea {
   outline-color: #12a9be;
 }
 
+/* CODEX: añadido para el encabezado independiente del generador Physikos. */
 .app-shell {
-  display: grid;
-  grid-template-columns: 250px 1fr;
   min-height: 100vh;
+  background: #f3f7fb;
 }
 
-.sidebar {
-  padding: 30px 18px;
-  color: white;
+.app-header {
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  width: 100%;
+  border-bottom: 1px solid rgb(255 255 255 / 12%);
   background:
-    linear-gradient(180deg, #061b3e, #072751);
+    linear-gradient(110deg, #061b3e, #082e5d);
+  box-shadow: 0 8px 28px rgb(7 28 63 / 16%);
 }
 
-.brand {
+.app-header__content {
+  display: flex;
+  width: min(100% - 48px, 1180px);
+  min-height: 78px;
+  align-items: center;
+  gap: 24px;
+  margin: 0 auto;
+}
+
+.app-header__brand {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.app-header__logo {
+  display: block;
+  width: 205px;
+  max-height: 48px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.app-header__module {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 0 10px 42px;
-  font-size: 24px;
-  font-weight: 750;
-}
-
-.brand-symbol {
-  display: grid;
-  width: 44px;
-  height: 44px;
-  place-items: center;
-  border: 1px solid #46d7ec;
-  border-radius: 50%;
-  color: #46d7ec;
-  font-size: 30px;
-}
-
-.sidebar nav {
-  display: grid;
-  gap: 8px;
-}
-
-.nav-item {
-  padding: 14px 16px;
-  border: 0;
-  border-radius: 10px;
-  color: #dce8fb;
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-}
-
-.nav-item:hover {
-  background: rgb(255 255 255 / 8%);
-}
-
-.nav-item-active {
+  gap: 20px;
   color: white;
-  background: rgb(42 160 197 / 22%);
+}
+
+.app-header__separator {
+  width: 1px;
+  height: 38px;
+  background: rgb(255 255 255 / 25%);
+}
+
+.app-header__module > div {
+  display: grid;
+  gap: 3px;
+}
+
+.app-header__label {
+  color: #7cdded;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.app-header__module strong {
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.app-header__return {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  padding: 0 15px;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 9px;
+  color: white;
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.app-header__return:hover {
+  border-color: rgb(255 255 255 / 50%);
+  background: rgb(255 255 255 / 10%);
+}
+
+.app-header__return:focus-visible {
+  outline: 3px solid #56d8e9;
+  outline-offset: 3px;
 }
 
 .main-content {
@@ -356,11 +398,11 @@ textarea {
 }
 
 @media (max-width: 950px) {
-  .app-shell {
-    grid-template-columns: 1fr;
+  .app-header__content {
+    width: min(100% - 32px, 1180px);
   }
 
-  .sidebar {
+  .app-header__module {
     display: none;
   }
 
@@ -385,5 +427,25 @@ textarea {
   .result-details div {
     grid-template-columns: 1fr;
     gap: 5px;
+  }
+
+    .app-header__content {
+    min-height: 68px;
+    gap: 12px;
+  }
+
+  .app-header__logo {
+    width: 150px;
+  }
+
+  .app-header__return {
+    width: 42px;
+    padding: 0;
+    justify-content: center;
+    font-size: 0;
+  }
+
+  .app-header__return span {
+    font-size: 20px;
   }
 }

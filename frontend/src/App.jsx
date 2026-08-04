@@ -6,6 +6,10 @@ import {
 } from "./api";
 import "./App.css";
 
+const PHYSIKOS_URL =
+  import.meta.env.VITE_PHYSIKOS_URL ||
+  "https://fercharicastillo.github.io/chari/";
+
 function App() {
   const [plantillas, setPlantillas] = useState([]);
   const [plantilla, setPlantilla] = useState("1");
@@ -91,24 +95,41 @@ function App() {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
-        <div className="brand">
-          <span className="brand-symbol">φ</span>
-          <span>Physikos</span>
-        </div>
+      <header className="app-header">
+  <div className="app-header__content">
+    <a
+      className="app-header__brand"
+      href={PHYSIKOS_URL}
+      title="Ir a Physikos"
+    >
+      <img
+        className="app-header__logo"
+        src="/brand/physikos.svg"
+        alt="Physikos"
+      />
+    </a>
 
-        <nav>
-          <button className="nav-item">Inicio</button>
-          <button className="nav-item">
-            Banco de preguntas
-          </button>
-          <button className="nav-item nav-item-active">
-            Generador de exámenes
-          </button>
-          <button className="nav-item">Plantillas</button>
-          <button className="nav-item">Historial</button>
-        </nav>
-      </aside>
+    <div className="app-header__module">
+      <span className="app-header__separator" />
+
+      <div>
+        <span className="app-header__label">
+          Herramientas docentes
+        </span>
+
+        <strong>Generador de exámenes</strong>
+      </div>
+    </div>
+
+    <a
+      className="app-header__return"
+      href={PHYSIKOS_URL}
+    >
+      <span aria-hidden="true">←</span>
+      Volver a Physikos
+    </a>
+  </div>
+</header>
 
       <main className="main-content">
         <header className="page-header">
