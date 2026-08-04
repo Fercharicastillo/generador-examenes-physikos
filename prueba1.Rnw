@@ -15,7 +15,7 @@
 \usepackage{tikz}
 \usepackage{enumerate}
 \usetikzlibrary{intersections}
-\graphicspath{{C:/PicturesTex}}
+\graphicspath{{recursos/}}
 
 \usepackage{bm}
 
@@ -80,7 +80,6 @@
 \renewcommand{\tablename}{Figura}
 \renewcommand{\thetable}{1}
 \begin{document}
-\SweaveOpts{}
 	% Primera Tabla	
 	\renewcommand*{\arraystretch}{2} %Redifinir espacio vertical entre filas
 	\setlength{\tabcolsep}{2.5mm} %Redifinir espacio entre columnas
