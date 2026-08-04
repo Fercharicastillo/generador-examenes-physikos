@@ -1,0 +1,166 @@
+ \documentclass[a4paper,11pt,titlepage]{article}
+\usepackage{lipsum} %% texto basura \lipsum
+%\usepackage{showframe}
+\usepackage{geometry} %% cambiar margenes, pie de pagina, etc \geometry{options}
+%\usepackage{showframe} %% Para ver el espaciado de los margenes
+\usepackage{fancyhdr} %% Modificar el encabeza y el pie de página
+\usepackage{graphicx} %% Insertar gráficos
+\usepackage{xcolor,soul} %% Letra espaciada \so y color de letra
+%\usepackage{lmodern} %% Cambiar el tamaño de la letra \fontsize{size}{skip}
+\usepackage{booktabs} %% mejoras en la tablas
+\usepackage{multicol,multirow,colortbl,bigstrut, array,tabularx,supertabular,longtable,float} %% Paquetes para tablas
+\usepackage{amssymb,amsmath,amsfonts,cancel} %% Paquetes para nomenclatura matemática
+\usepackage{wrapfig,sidecap}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usepackage{enumerate}
+\usetikzlibrary{intersections}
+\graphicspath{{C:/PicturesTex}}
+
+\usepackage{bm}
+
+\newcommand{\uveci}{{\bm{\hat{\textnormal{\bfseries\i}}}}}
+\newcommand{\uvecj}{{\bm{\hat{\textnormal{\bfseries\j}}}}}
+\DeclareRobustCommand{\uvec}[1]{{%
+		\ifcat\relax\noexpand#1%
+		% it should be a Greek letter
+		\bm{\hat{#1}}%
+		\else
+		\ifcsname uvec#1\endcsname
+		\csname uvec#1\endcsname
+		\else
+		\bm{\hat{\mathbf{#1}}}%
+		\fi
+		\fi
+}}
+
+% DEFINICIÓN DE COLORES
+\definecolor{blueblackclaro}{RGB}{132, 150, 176}
+\definecolor{blueblackintenso}{RGB}{50, 62, 79}
+
+% CARACTERÍSTICAS DEL FORMATO
+\fancypagestyle{miestilo}{
+	\rhead{\includegraphics[width=0.3\textwidth]{centro}}
+	\chead{}
+	\lhead{}
+	\rfoot{}
+	\cfoot{}
+	%\lfoot{\textcolor{blueblackclaro}{P\hspace{0.5pt}á\hspace{0.5pt}g\hspace{0.5pt}i\hspace{0.5pt}n\hspace{0.5pt}a}\textcolor{blueblackintenso}{\ \textbf{\thepage $\mid$ \pageref{LastPage}}}}
+	}
+
+\geometry{
+	bottom=3cm,
+	top=5cm,
+	left=1.9cm,
+	right=1.9cm,
+	headsep=1cm,
+	head=2.5cm,
+	foot=1cm,
+	marginparwidth=0cm,
+	%includefoot,
+	%includehead,
+	includeall=false
+}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\includegraphics[width=2cm,height=2cm]{uuce}}
+\chead{
+	\fontsize{15}{15}\selectfont \so{\textsc{Universidad Central del Ecuador}}\\
+	\fontsize{12}{15}\selectfont \textsc{Facultad de Filosofía, Letras y Ciencias de la Educación}\\
+	\fontsize{15}{15}\selectfont \textsc{Dirección de Posgrado}\\
+	\fontsize{10}{15}\selectfont \textsc{Maestría en Pedagogía de las Ciencias Experimentales, Mención Física} 
+}
+\rhead{\includegraphics[width=2cm,height=2cm]{fuce}}
+%\lfoot{\textcolor{blueblackclaro}{P\hspace{0.5pt}á\hspace{0.5pt}g\hspace{0.5pt}i\hspace{0.5pt}n\hspace{0.5pt}a}\textcolor{blueblackintenso}{\ \textbf{\thepage $\mid$ \pageref{LastPage}}}}
+\rfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand*{\baselinestretch}{0.7}
+
+% NUEVOS COMANDOS
+\renewcommand{\tablename}{Figura}
+\renewcommand{\thetable}{1}
+\begin{document}
+\SweaveOpts{}
+	% Primera Tabla	
+	\renewcommand*{\arraystretch}{2} %Redifinir espacio vertical entre filas
+	\setlength{\tabcolsep}{2.5mm} %Redifinir espacio entre columnas
+	\setlength{\arrayrulewidth}{1pt} %Redefinir grosor de la linea p{0.6\textwidth} para poner varias lineas dentro de un parrafo
+	\begin{tabular}[t!]{|l|l|l|l|} 
+		\hline
+		\rowcolor[rgb]{ .839,  .863,  .894}
+<<echo=FALSE>>=
+nombre<-nombre_actual
+@
+		\multicolumn{4}{|c|}{\textbf{DATOS PERSONALES}} \\ \cline{1-4}
+		\multicolumn{4}{|l|}{\textbf{\small APELLIDOS Y NOMBRES:} \Sexpr{nombre}} \\ \cline{1-4}
+		\multicolumn{2}{|p{0.2\textwidth}|}{\textbf{\small TIPO:} 1} & 
+		\multicolumn{1}{p{0.2\textwidth}|}{\textbf{\small GRUPO:} } &
+		\multicolumn{1}{l|}{\textbf{\small FECHA:} } \\ \cline{1-4}
+		\multicolumn{4}{|l|}{\textbf{\small DOCENTE:} MsC. Elsa Arequipa } \\ \cline{1-4}
+		\multicolumn{4}{|l|}{\textbf{\small ASISTENTE/ANALISTA/TÉCNICO:} Lic. Chari Fernando} \\ \cline{1-4}
+		\multicolumn{4}{l}{} \\ \cline{1-4}
+		\multicolumn{4}{|l|}{\textbf{\small UNIDAD 03:}  Trabajo y Energía} \\ 
+		\multicolumn{4}{|m{0.9\textwidth}|}{\textbf{\small OBJETIVO:} Evaluar el nivel de comprensión en relación a los temas de trabajo y energía, mediante la resolución de problemas, para identificar fortalezas y debilidades.} \\ \cline{1-4}
+ 
+		\multicolumn{4}{m{0.9\textwidth}}{
+		% Aqui va la pregunta uno
+		
+	\begin{enumerate}[\bfseries Probl{e}m{a} 1]
+<<echo=FALSE>>=
+masa1 <- pmasa1 #280
+coe <- pcoe #c(5,8)
+coe1 <- coe[1] 
+coe2 <- coe[2]
+coeind <- pcoeind #c(44)
+coe3 <- coeind[1]
+exp <-  pexp #c(3,2)
+exp1 <- exp[1]
+exp2 <- exp[2]
+tiem<-  ptiem #c(2,4)
+t1 <-tiem[1]
+t2 <-tiem[2]
+exp1men1 <- exp1-1
+exp2men1 <- exp2-1
+exp3men1 <- exp1men1-1
+exp4men1 <- exp2men1-1
+p1mult1<-exp1*coe1
+p1mult2<-exp2*coe2
+p1mult3<-exp1men1*p1mult1
+p1mult4<-exp2men1*p1mult2
+pot.a<-round((masa1/1000)*(p1mult3*t1^(exp3men1)-p1mult4*t1^(exp4men1))*(p1mult1*t1^(exp1men1)-p1mult2*t1^(exp2men1)-coe3),2)
+pot.b<-round((masa1/1000)*(p1mult3*t2^(exp3men1)-p1mult4*t2^(exp4men1))*(p1mult1*t2^(exp1men1)-p1mult2*t2^(exp2men1)-coe3),2)
+@
+	\item La posición de un objeto de \Sexpr{masa1} g está dada (en metros) por $x=\Sexpr{coe1}t^\Sexpr{exp1}-\Sexpr{coe2}t^\Sexpr{exp2}-\Sexpr{coe3}t$ donde $t$ está dada en segundos. (Valor: 1,5/20)  \par
+	Determinar la tasa neta del trabajo (Potencia) hecho sobre este objeto si
+	\begin{enumerate}
+	\item $t=\Sexpr{t1} \ \text{s}$
+	\item $t=\Sexpr{t2} \ \text{s}$
+	\end{enumerate}  
+\textbf{Solución:}
+\begin{eqnarray*}
+x&=&\Sexpr{coe1}t^\Sexpr{exp1}-\Sexpr{coe2}t^\Sexpr{exp2}-\Sexpr{coe3}t \\
+\frac{dx}{dt}&=&\Sexpr{exp1}\cdot\Sexpr{coe1}t^{\Sexpr{exp1men1}}-\Sexpr{exp2}\cdot\Sexpr{coe2}t^{\Sexpr{exp2men1}}-\Sexpr{coe3} \\
+v&=&\Sexpr{p1mult1}t^{\Sexpr{exp1men1}}-\Sexpr{p1mult2}t^{\Sexpr{exp2men1}}-\Sexpr{coe3}\\
+\frac{dv}{dt}&=&\Sexpr{exp1men1}\cdot\Sexpr{p1mult1}t^{\Sexpr{exp3men1}}-\Sexpr{exp2men1}\cdot\Sexpr{p1mult2}t^{\Sexpr{exp4men1}} \\
+a&=&\Sexpr{p1mult3}t^{\Sexpr{exp3men1}}-\Sexpr{p1mult4}t^{\Sexpr{exp4men1}}
+\end{eqnarray*}
+\textbf{(a)}
+\begin{eqnarray*}
+P&=&Fv \\
+P&=&mav \\
+P&=&m\left[\Sexpr{p1mult3}t^{\Sexpr{exp3men1}}-\Sexpr{p1mult4}t^{\Sexpr{exp4men1}}\right]\left[\Sexpr{p1mult1}t^{\Sexpr{exp1men1}}-\Sexpr{p1mult2}t^{\Sexpr{exp2men1}}-\Sexpr{coe3}\right]\\
+P&=&\frac{\Sexpr{masa1}}{1000}\left[\Sexpr{p1mult3}(\Sexpr{t1})^{\Sexpr{exp3men1}}-\Sexpr{p1mult4}(\Sexpr{t1})^{\Sexpr{exp4men1}}\right]\left[\Sexpr{p1mult1}(\Sexpr{t1})^{\Sexpr{exp1men1}}-\Sexpr{p1mult2}(\Sexpr{t1})^{\Sexpr{exp2men1}}-\Sexpr{coe3}\right] \\
+P&=&\Sexpr{pot.a} \ \text{W}
+\end{eqnarray*}
+\textbf{(b)}
+\begin{eqnarray*}
+	P&=&Fv \\
+	P&=&mav \\
+	P&=&m\left[\Sexpr{p1mult3}t^{\Sexpr{exp3men1}}-\Sexpr{p1mult4}t^{\Sexpr{exp4men1}}\right]\left[\Sexpr{p1mult1}t^{\Sexpr{exp1men1}}-\Sexpr{p1mult2}t^{\Sexpr{exp2men1}}-\Sexpr{coe3}\right]\\
+	P&=&\frac{\Sexpr{masa1}}{1000}\left[\Sexpr{p1mult3}(\Sexpr{t2})^{\Sexpr{exp3men1}}-\Sexpr{p1mult4}(\Sexpr{t2})^{\Sexpr{exp4men1}}\right]\left[\Sexpr{p1mult1}(\Sexpr{t2})^{\Sexpr{exp1men1}}-\Sexpr{p1mult2}(\Sexpr{t2})^{\Sexpr{exp2men1}}-\Sexpr{coe3}\right] \\
+	P&=&\Sexpr{pot.b} \ \text{W}
+\end{eqnarray*}	
+\end{enumerate}
+		} 	
+	\end{tabular}
+\end{document}

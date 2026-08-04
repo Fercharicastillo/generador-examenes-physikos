@@ -1,0 +1,140 @@
+ \documentclass[a4paper,11pt,titlepage]{article}
+\usepackage{lipsum} %% texto basura \lipsum
+%\usepackage{showframe}
+\usepackage{geometry} %% cambiar margenes, pie de pagina, etc \geometry{options}
+%\usepackage{showframe} %% Para ver el espaciado de los margenes
+\usepackage{fancyhdr} %% Modificar el encabeza y el pie de página
+\usepackage{graphicx} %% Insertar gráficos
+\usepackage{xcolor,soul} %% Letra espaciada \so y color de letra
+%\usepackage{lmodern} %% Cambiar el tamaño de la letra \fontsize{size}{skip}
+\usepackage{booktabs} %% mejoras en la tablas
+\usepackage{multicol,multirow,colortbl,bigstrut, array,tabularx,supertabular,longtable,float} %% Paquetes para tablas
+\usepackage{amssymb,amsmath,amsfonts,cancel} %% Paquetes para nomenclatura matemática
+\usepackage{wrapfig,sidecap}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usepackage{enumerate}
+\usetikzlibrary{intersections}
+\graphicspath{{C:/PicturesTex}}
+
+\usepackage{bm}
+
+\newcommand{\uveci}{{\bm{\hat{\textnormal{\bfseries\i}}}}}
+\newcommand{\uvecj}{{\bm{\hat{\textnormal{\bfseries\j}}}}}
+\DeclareRobustCommand{\uvec}[1]{{%
+		\ifcat\relax\noexpand#1%
+		% it should be a Greek letter
+		\bm{\hat{#1}}%
+		\else
+		\ifcsname uvec#1\endcsname
+		\csname uvec#1\endcsname
+		\else
+		\bm{\hat{\mathbf{#1}}}%
+		\fi
+		\fi
+}}
+
+% DEFINICIÓN DE COLORES
+\definecolor{blueblackclaro}{RGB}{132, 150, 176}
+\definecolor{blueblackintenso}{RGB}{50, 62, 79}
+
+% CARACTERÍSTICAS DEL FORMATO
+\fancypagestyle{miestilo}{
+	\rhead{\includegraphics[width=0.3\textwidth]{centro}}
+	\chead{}
+	\lhead{}
+	\rfoot{}
+	\cfoot{}
+	%\lfoot{\textcolor{blueblackclaro}{P\hspace{0.5pt}á\hspace{0.5pt}g\hspace{0.5pt}i\hspace{0.5pt}n\hspace{0.5pt}a}\textcolor{blueblackintenso}{\ \textbf{\thepage $\mid$ \pageref{LastPage}}}}
+	}
+
+\geometry{
+	bottom=3cm,
+	top=5cm,
+	left=1.9cm,
+	right=1.9cm,
+	headsep=1cm,
+	head=2.5cm,
+	foot=1cm,
+	marginparwidth=0cm,
+	%includefoot,
+	%includehead,
+	includeall=false
+}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\includegraphics[width=2cm,height=2cm]{uuce}}
+\chead{
+	\fontsize{15}{15}\selectfont \so{\textsc{Universidad Central del Ecuador}}\\
+	\fontsize{12}{15}\selectfont \textsc{Facultad de Filosofía, Letras y Ciencias de la Educación}\\
+	\fontsize{15}{15}\selectfont \textsc{Dirección de Posgrado}\\
+	\fontsize{10}{15}\selectfont \textsc{Maestría en Pedagogía de las Ciencias Experimentales, Mención Física} 
+}
+\rhead{\includegraphics[width=2cm,height=2cm]{fuce}}
+%\lfoot{\textcolor{blueblackclaro}{P\hspace{0.5pt}á\hspace{0.5pt}g\hspace{0.5pt}i\hspace{0.5pt}n\hspace{0.5pt}a}\textcolor{blueblackintenso}{\ \textbf{\thepage $\mid$ \pageref{LastPage}}}}
+\rfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand*{\baselinestretch}{0.7}
+
+% NUEVOS COMANDOS
+\renewcommand{\tablename}{Figura}
+\renewcommand{\thetable}{1}
+\begin{document}
+\SweaveOpts{}
+	% Primera Tabla	
+	\renewcommand*{\arraystretch}{2} %Redifinir espacio vertical entre filas
+	\setlength{\tabcolsep}{2.5mm} %Redifinir espacio entre columnas
+	\setlength{\arrayrulewidth}{1pt} %Redefinir grosor de la linea p{0.6\textwidth} para poner varias lineas dentro de un parrafo
+	\begin{tabular}[t!]{|l|l|l|l|} 
+		\hline
+		\rowcolor[rgb]{ .839,  .863,  .894}	
+<<echo=FALSE>>=
+nombre<-nombre_actual
+@
+		\multicolumn{4}{|c|}{\textbf{DATOS PERSONALES}} \\ \cline{1-4}
+		\multicolumn{4}{|l|}{\textbf{\small APELLIDOS Y NOMBRES:} \Sexpr{nombre}} \\ \cline{1-4}
+		\multicolumn{2}{|p{0.2\textwidth}|}{\textbf{\small TIPO:} 1} & 
+		\multicolumn{1}{p{0.2\textwidth}|}{\textbf{\small GRUPO:} } &
+		\multicolumn{1}{l|}{\textbf{\small FECHA:} } \\ \cline{1-4}
+		\multicolumn{4}{|l|}{\textbf{\small DOCENTE:} MsC. Elsa Arequipa } \\ \cline{1-4}
+		\multicolumn{4}{|l|}{\textbf{\small ASISTENTE/ANALISTA/TÉCNICO:} Lic. Chari Fernando} \\ \cline{1-4}
+		\multicolumn{4}{l}{} \\ \cline{1-4}
+		\multicolumn{4}{|l|}{\textbf{\small UNIDAD 03:}  Trabajo y Energía} \\ 
+		\multicolumn{4}{|m{0.9\textwidth}|}{\textbf{\small OBJETIVO:} Evaluar el nivel de comprensión en relación a los temas de trabajo y energía, mediante la resolución de problemas, para identificar fortalezas y debilidades.} \\ \cline{1-4}
+		\multicolumn{4}{m{0.9\textwidth}}{} \\ 
+		\multicolumn{4}{m{0.9\textwidth}}{\textbf{Instrucciones:} 
+		\begin{enumerate}
+		\item La duración de la prueba será de 2 horas (02h00).
+		\item Se requiere desarrollar los problemas de aplicación en hojas de papel ministro, sin necesidad de copiar el enunciado.
+		\item Los problemas de aplicación deben ser resueltos con lápiz, y las respuestas deben ser encerradas en un recuadro utilizando esferográfico azul; caso contrario, serán anuladas.
+		\item Cualquier respuesta con tachones o enmendaduras será considerada nula.	
+		\item Se aplicarán sanciones de acuerdo con las normativas institucionales y la Ley Orgánica de Educación Superior a cualquier intento de copia.
+		\end{enumerate}
+		} \\ 
+		\multicolumn{4}{m{0.9\textwidth}}{
+		% Aqui va la pregunta uno
+			\begin{enumerate}[\bfseries Probl{e}m{a} 1]
+<<echo=FALSE>>=
+pmasa1 <- sample(200:300,1)
+pcoe <- c(sample(2:10,2,replace = FALSE))
+pcoe1 <- pcoe[1] 
+pcoe2 <- pcoe[2]
+pcoeind <- c(sample(2:50,1,replace = FALSE)) 
+pcoe3 <- pcoeind[1]
+pexp <- c(sample(2:3,2,replace = FALSE))
+pexp1 <- pexp[1]
+pexp2 <- pexp[2]
+ptiem<- c(sample(1:4,2,replace = FALSE))
+pt1 <-ptiem[1]
+pt2 <-ptiem[2]
+@
+	\item La posición de un objeto de \Sexpr{pmasa1} g está dada (en metros) por $x=\Sexpr{pcoe1}t^\Sexpr{pexp1}-\Sexpr{pcoe2}t^\Sexpr{pexp2}-\Sexpr{pcoe3}t$ donde $t$ está dada en segundos. (Valor: 1,5/20)  \par
+	Determinar la tasa neta del trabajo (Potencia) hecho sobre este objeto si
+	\begin{enumerate}
+	\item $t=\Sexpr{pt1} \ \text{s}$
+	\item $t=\Sexpr{pt2} \ \text{s}$
+	\end{enumerate} 
+	\end{enumerate} 
+		} 	
+	\end{tabular}
+\end{document}

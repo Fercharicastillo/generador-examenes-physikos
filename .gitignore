@@ -1,0 +1,33 @@
+# React
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Resultados generados
+resultados/
+trabajos/
+*.pdf
+*.zip
+
+# Archivos generados por LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+prueba*.tex
+solucion*.tex
+
+# Archivos temporales de R
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+
+# Datos privados
+estudiantes.txt
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
