@@ -1,12 +1,93 @@
 :root {
-  color: #17243d;
-  background: #f3f7fb;
-  font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --physikos-blue-950: #061b3e;
+  --physikos-blue-900: #082a63;
+  --physikos-blue-800: #0860a8;
+  --physikos-blue-700: #0566c2;
+  --physikos-blue-100: #eaf3fc;
+  --physikos-blue-825: #ffffff;
+  --physikos-cyan: #18a8c7;
+  --physikos-black: #000000;
+
+  --physikos-success: #079b79;
+  --physikos-warning: #ae7417;
+  --physikos-danger: #b33145;
+
+  --physikos-background: #f7f9fc;
+  --physikos-surface: #ffffff;
+  --physikos-background-main: #ffffff;
+  --physikos-border: #000000;
+  --physikos-text: #09235b;
+  --physikos-text-two: #000000;
+  --physikos-text-muted: #5e6f91;
+  --physikos-panel: #ffffff;
+  --physikos-input: #fbfdff;
+  --physikos-border-soft: #dce5ef;
+  --physikos-hero-background: linear-gradient(120deg, rgba(255, 255, 255, .98), rgba(239, 247, 255, .88));
+  --physikos-panel-shadow: 0 14px 45px rgb(31 55 85 / 8%);
+  --physikos-menu-current-part: #66a8df41;
+  --physikos-menu-current: #6187a873;
+  --physikos-menu-hover: #0860a841;
+
+  --physikos-radius-sm: 8px;
+  --physikos-radius-md: 14px;
+  --physikos-radius-lg: 18px;
+
+  --physikos-content-width: 1210px;
+  --physikos-header__menu: url(/brand/physikos-header__menu-dark.svg);
+  --physikos-app-header__logo: url(/brand/physikos.svg);
+  --physikos-generador-fondo-right: url(/brand/physikos-generador-fondo-right.svg);
+
+  --physikos-generador-icon-left: url(/brand/physikos-generador-icon-left.svg);
+  --phy-btnmenu-introduccion: url(/brand/phy-btnmenu-introduccion.svg);
+  --phy-btnmenu-generador: url(/brand/phy-btnmenu-generador.svg);
+  --phy-btnmenu-preguntas: url(/brand/phy-btnmenu-preguntas.svg);
+  --phy-btnmenu-plantillas: url(/brand/phy-btnmenu-plantillas.svg);
+  --phy-darkmode-moon: url(/brand/phy-moon.svg);
+  --phy-darkmode-sun: url(/brand/phy-sun.svg);
+}
+
+[cambio="darkMode"] {
+  color-scheme: dark;
+  --physikos-blue-800: #9fadb2;
+  --physikos-blue-825: #9fadb2;
+  --physikos-background: #071426;
+  --physikos-background-main: #121617;
+  --physikos-surface: #000000;
+  --physikos-panel: #182025;
+  --physikos-input: #313d4c80;
+  --physikos-border: #41536c;
+  --physikos-border-soft: #30445e;
+  --physikos-text: #e8f1fb;
+  --physikos-text-two: #edf4fc;
+  --physikos-text-muted: #a9b8cb;
+  --physikos-menu-current-part: #1874b65c;
+  --physikos-menu-current: #2287c96b;
+  --physikos-menu-hover: #1b78b851;
+  --physikos-hero-background: #182025;
+  --physikos-panel-shadow: 0 14px 45px rgb(0 0 0 / 24%);
+  --physikos-generador-fondo-right: url(/brand/physikos-generador-fondo-right-dark.svg);
+  --physikos-generador-icon-left: url(/brand/physikos-generador-icon-left-dark.svg);
+  --phy-btnmenu-introduccion: url(/brand/phy-btnmenu-introduccion-dark.svg);
+  --phy-btnmenu-generador: url(/brand/phy-btnmenu-generador-dark.svg);
+  --phy-btnmenu-preguntas: url(/brand/phy-btnmenu-preguntas-dark.svg);
+  --phy-btnmenu-plantillas: url(/brand/phy-btnmenu-plantillas-dark.svg);
+  --phy-darkmode-moon: url(/brand/phy-moon-dark.svg);
+  --phy-darkmode-sun: url(/brand/phy-sun-dark.svg);
+  --physikos-app-header__logo: url(/brand/physikos-dark.svg);
+  --physikos-generador-fondo-right-dark: url(/brand/physikos-generador-fondo-right-dark.svg);
+  --physikos-generador-icon-left-dark: url(/brand/physikos-generador-icon-left-dark.svg);
+  --phy-btnmenu-introduccion-dark: url(/brand/phy-btnmenu-introduccion-dark.svg);
+  --phy-btnmenu-generador-dark: url(/brand/phy-btnmenu-generador-dark.svg);
+  --phy-btnmenu-preguntas-dark: url(/brand/phy-btnmenu-preguntas-dark.svg);
+  --phy-btnmenu-plantillas-dark: url(/brand/phy-btnmenu-plantillas-dark.svg);
+  --phy-darkmode-moon-dark: url(/brand/phy-moon-dark.svg);
+  --phy-darkmode-sun-dark: url(/brand/phy-sun-dark.svg);
+  --physikos-header__menu: url(/brand/physikos-header__menu.svg);
 }
 
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -14,6 +95,10 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  font-family: system-ui, apple-system, BlinkMacSystemFont, Roboto, 'Segoe UI', "Source Sans Pro", sans-serif;
+  font-size: 12px;
+  color: var(--physikos-text-two);
+  background: var(--physikos-background);
 }
 
 button,
@@ -32,144 +117,348 @@ textarea {
 
 /* CODEX: añadido para el encabezado independiente del generador Physikos. */
 .app-shell {
+  background: var(--physikos-background);
+  width: 100%;
   min-height: 100vh;
-  background: #f3f7fb;
+  display: grid;
+  grid-template-columns: 19.91em 1fr;
+  grid-template-rows: 5em 1fr 3.5em;
+  background-color: var(--physikos-surface);
 }
 
 .app-header {
-  position: sticky;
-  z-index: 20;
-  top: 0;
-  width: 100%;
-  border-bottom: 1px solid rgb(255 255 255 / 12%);
-  background:
-    linear-gradient(110deg, #061b3e, #082e5d);
-  box-shadow: 0 8px 28px rgb(7 28 63 / 16%);
+    grid-column: 1 / 3;
+    grid-row: 1 / 2;
+    position: fixed;
+    width: 100%;
+    background-color: var(--physikos-blue-800);
+    z-index: 3;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.app-header__content {
+.app-header__content-namepage {
   display: flex;
-  width: min(100% - 48px, 1180px);
-  min-height: 78px;
+  width: 19.91em;
+  height: 5em;
+  min-height: 5em;
+  justify-content: space-between;
   align-items: center;
-  gap: 24px;
-  margin: 0 auto;
+  gap: 28px;
+}
+
+.app-header__btnmenu {
+  border: 0 none;
+  width: 4em;
+  height: 3em;
+  position: relative;
+  background-image: var(--physikos-header__menu);
+  background-size: 1.5em;
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  padding-top: 5px;
+  border-radius: 50%;
+  transition: transform 0.15s cubic-bezier(.22, .61, .36, 1), background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.app-header__btnmenu:hover {
+  background-color: #a9aeb38c;
+}
+
+.app-header__content-actions {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
 }
 
 .app-header__brand {
   display: flex;
-  flex: 0 0 auto;
   align-items: center;
+  justify-content: left;
+  width: 18.61em;
+  cursor: pointer;
+  padding-left: 1em;
 }
 
 .app-header__logo {
   display: block;
-  width: 205px;
-  max-height: 48px;
+  width: 95%;
+  height: 3em;
   object-fit: contain;
   object-position: left center;
+  background-image: var(--physikos-app-header__logo);
+  background-repeat: no-repeat;
+  background-position: left;
+  background-size: 12em 3em;
 }
 
-.app-header__module {
+/* Estilos del selector de modo oscuro controlado por React. */
+.app-header .content__DarkMode {
   display: flex;
   align-items: center;
-  gap: 20px;
-  color: white;
+  margin-right: 1em;
 }
 
-.app-header__separator {
-  width: 1px;
-  height: 38px;
-  background: rgb(255 255 255 / 25%);
-}
-
-.app-header__module > div {
-  display: grid;
-  gap: 3px;
-}
-
-.app-header__label {
-  color: #7cdded;
-  font-size: 11px;
-  font-weight: 750;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.app-header__module strong {
-  font-size: 15px;
-  font-weight: 650;
-}
-
-.app-header__return {
+.darmode-btn-content {
+  position: relative;
   display: inline-flex;
-  min-height: 40px;
   align-items: center;
-  gap: 8px;
-  margin-left: auto;
-  padding: 0 15px;
-  border: 1px solid rgb(255 255 255 / 25%);
-  border-radius: 9px;
-  color: white;
-  font-size: 14px;
-  font-weight: 650;
+  gap: 6px;
+  min-height: 36px;
+  padding: 5px 7px;
+  border: 1px solid rgb(255 255 255 / 45%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 16%);
+  cursor: pointer;
+  transition: background-color .2s ease, transform .15s ease;
+}
+
+.darmode-btn-content:hover {
+  background: rgb(255 255 255 / 26%);
+}
+
+.darmode-btn-content:active {
+  transform: scale(.96);
+}
+
+.darmode-btn-content:focus-within {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.darmode-btn-content input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.btn-sun,
+.btn-moon {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  background: center / contain no-repeat;
+}
+
+.btn-sun {
+  background-image: var(--phy-darkmode-sun);
+}
+
+.btn-moon {
+  background-image: var(--phy-darkmode-moon);
+}
+
+.darkmode-track {
+  width: 38px;
+  height: 22px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgb(3 32 64 / 52%);
+}
+
+.darkmode-thumb {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 5px rgb(0 0 0 / 32%);
+  transition: transform .2s cubic-bezier(.22, .61, .36, 1);
+}
+
+.btn-cambio-after-dM .darkmode-thumb {
+  transform: translateX(16px);
+}
+
+/*Estilos del menu desplegable*/
+.menu {
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+  width: 19.91em;
+  bottom: 3.5em;
+  position: fixed;
+  top: 5em;
+  left: 0;
+  z-index: 3;
+  background-color: var(--physikos-surface);
+  transform: translateX(0);
+  transition: transform .4s cubic-bezier(.22, .61, .36, 1);
+  will-change: transform;
+}
+
+.menu-overlay {
+  display: none;
+  border: 0;
+}
+
+.menu p a {
+  display: flex;
+  align-items: center;
+  height: 2.3em;
+  line-height: 2em;
   text-decoration: none;
-  transition:
-    border-color 160ms ease,
-    background-color 160ms ease;
+  color: var(--physikos-text-two);
+  padding-left: 10px;
 }
 
-.app-header__return:hover {
-  border-color: rgb(255 255 255 / 50%);
-  background: rgb(255 255 255 / 10%);
+nav.menu_nav .menu-nav__content > p.current {
+  background-color: var(--physikos-menu-current);
 }
 
-.app-header__return:focus-visible {
-  outline: 3px solid #56d8e9;
-  outline-offset: 3px;
+.menu-nav__content > p.current-part {
+  background-color: var(--physikos-menu-current-part);
 }
+
+.menu-nav__content p:hover,
+.menu-nav__content > p.current-part:hover {
+  background-color: var(--physikos-menu-hover);
+}
+
+.menu-nav {
+  width: 19.91em;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  -webkit-user-select: none;
+  user-select: none;
+  background-color: var(--physikos-surface);
+  border-right: 1px solid var(--physikos-border);
+}
+
+.menu-nav__content p a::before {
+  content: "";
+  display: inline-block;
+  width: 1.35em;
+  height: 1.35em;
+  flex: 0 0 1.35em;
+  margin-right: 1em;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.menu-nav__content-inicio a::before {
+  background-image: var(--phy-btnmenu-introduccion);
+}
+
+.menu-nav__content-preguntas a::before {
+  background-image: var(--phy-btnmenu-preguntas);
+}
+
+.menu-nav__content-generador a::before {
+  background-image: var(--phy-btnmenu-generador);
+}
+
+.menu-nav__content-plantillas a::before {
+  background-image: var(--phy-btnmenu-plantillas);
+}
+
+nav.menu-nav .menu-nav__content a {
+  font-weight: bold;
+}
+
 
 .main-content {
-  padding: 42px;
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--physikos-background-main);
+  min-width: 0;
+  transition: padding-left .4s cubic-bezier(.22, .61, .36, 1);
+  will-change: padding-left;
 }
 
-.page-header {
-  max-width: 1180px;
-  margin: 0 auto 26px;
+.generador-profile-section {
+  width: 95%;
+  margin-top: 1em;
+  padding: 1.45em 1.6em;
+  border: 1px solid var(--physikos-border);
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 6.2em minmax(0, 1fr) minmax(280px, 43%);
+  gap: 1.7em;
+  color: var(--physikos-text);
+  background: var(--physikos-hero-background);
+  box-shadow: 0 12px 28px rgba(7, 27, 92, .08);
+  min-width: 0;
 }
 
-.page-header h1 {
-  margin: 4px 0 8px;
-  color: #0b2853;
-  font-size: clamp(28px, 4vw, 42px);
+.generador-page__hero-illustration {
+  width: 100%;
+  min-height: 13.5em;
+  opacity: .62;
+  background-image: var(--physikos-generador-fondo-right);
+  background-repeat: no-repeat;
+  background-position: center right;
+  background-size: contain;
 }
 
-.page-header p {
+.generador-profile-section__icon {
+  width: 5.7em;
+  height: 5.7em;
+  border: 1px solid var(--physikos-border-soft);
+  border-radius: 50%;
+  background-image: var(--physikos-generador-icon-left);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 3.45em 3.45em;
+  box-shadow: 0 12px 24px rgba(7, 27, 92, .12);
+}
+
+.generador-profile-section__title {
   margin: 0;
-  color: #69778d;
+  color: var(--physikos-text);
+  font-size: clamp(2.2em, 3vw, 3.6em);
+  font-weight: 400;
+  line-height: 1.05;
 }
 
-.eyebrow {
-  color: #0d9eb3 !important;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
+.generador-profile-section__note {
+  margin: .55em 0 0;
+  padding: 0;
+  color: var(--physikos-text);
+  font-size: 1.35em;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.generador-profile-section__introduction {
+  max-width: 760px;
+  margin: .8em 0 0;
+  padding: 0;
+  color: var(--physikos-text-two);
+  font-size: 1.25em;
+  font-weight: 400;
+  line-height: 1.55;
 }
 
 .layout-grid {
   display: grid;
   grid-template-columns: minmax(420px, 1.05fr) minmax(360px, 0.95fr);
   gap: 24px;
-  max-width: 1180px;
-  margin: 0 auto;
+  width: 95%;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  min-width: 0;
 }
 
 .panel {
   padding: 28px;
-  border: 1px solid #dce5ef;
+  border: 1px solid var(--physikos-border-soft);
   border-radius: 18px;
-  background: white;
-  box-shadow: 0 14px 45px rgb(31 55 85 / 8%);
+  background: var(--physikos-panel);
+  box-shadow: var(--physikos-panel-shadow);
+  min-width: 0;
 }
 
 .panel-heading {
@@ -201,6 +490,11 @@ textarea {
   font-weight: 800;
 }
 
+[cambio="darkMode"] .step {
+  color: #0ba5b9;
+  background: #c4dcdf;
+}
+
 .status {
   display: inline-flex;
   align-items: center;
@@ -221,6 +515,11 @@ textarea {
 .status-connected {
   color: #087a63;
   background: #e1f8f1;
+}
+
+[cambio="darkMode"] .status-connected {
+  color: #dff8e8;
+  background: #214333;
 }
 
 .status-connecting {
@@ -256,7 +555,7 @@ textarea {
 
 .field > span,
 .checkbox-field span {
-  color: #243550;
+  color: var(--physikos-text);
   font-size: 14px;
   font-weight: 700;
 }
@@ -266,10 +565,10 @@ textarea {
 .field textarea {
   width: 100%;
   padding: 12px 14px;
-  border: 1px solid #cfdae7;
+  border: 1px solid var(--physikos-border-soft);
   border-radius: 10px;
-  color: #17243d;
-  background: #fbfdff;
+  color: var(--physikos-text-two);
+  background: var(--physikos-input);
 }
 
 .field textarea {
@@ -278,7 +577,7 @@ textarea {
 }
 
 .field small {
-  color: #758298;
+  color: var(--physikos-text-muted);
 }
 
 .two-columns {
@@ -300,6 +599,10 @@ textarea {
   accent-color: #0ba5b9;
 }
 
+[cambio="darkMode"] .checkbox-field input {
+  accent-color: #c4dcdf;
+}
+
 .primary-button,
 .download-button {
   display: flex;
@@ -314,6 +617,12 @@ textarea {
   font-weight: 750;
   text-decoration: none;
   cursor: pointer;
+} 
+
+[cambio="darkMode"] .primary-button,
+[cambio="darkMode"] .download-button {
+  background: linear-gradient(135deg, #c4dcdf, #89bfd7);
+  color: rgb(31, 30, 30);
 }
 
 .primary-button:disabled {
@@ -341,9 +650,9 @@ textarea {
   height: 102px;
   place-items: center;
   margin-bottom: 22px;
-  border: 2px solid #b7c5d5;
+  border: 2px solid var(--physikos-border-soft);
   border-radius: 9px;
-  color: #7e8da0;
+  color: var(--physikos-text-muted);
   font-weight: 800;
 }
 
@@ -354,7 +663,7 @@ textarea {
 
 .empty-state p {
   max-width: 330px;
-  color: #77859a;
+  color: var(--physikos-text-muted);
 }
 
 .loader {
@@ -390,7 +699,7 @@ textarea {
   width: 100%;
   gap: 0;
   margin: 24px 0;
-  border: 1px solid #dce5ef;
+  border: 1px solid var(--physikos-border-soft);
   border-radius: 12px;
   text-align: left;
   overflow: hidden;
@@ -400,7 +709,7 @@ textarea {
   display: grid;
   grid-template-columns: 130px 1fr;
   padding: 12px 14px;
-  border-bottom: 1px solid #e5ecf3;
+  border-bottom: 1px solid var(--physikos-border-soft);
 }
 
 .result-details div:last-child {
@@ -408,7 +717,7 @@ textarea {
 }
 
 .result-details dt {
-  color: #78859a;
+  color: var(--physikos-text-muted);
 }
 
 .result-details dd {
@@ -419,7 +728,7 @@ textarea {
 
 .success-card > small {
   margin-top: 10px;
-  color: #78859a;
+  color: var(--physikos-text-muted);
 }
 
 .message {
@@ -435,31 +744,182 @@ textarea {
   background: #fff0f2;
 }
 
-@media (max-width: 950px) {
-  .app-header__content {
-    width: min(100% - 32px, 1180px);
+/*Estilos del footer*/
+.footer {
+  grid-column: 1 / 3;
+  grid-row: 3 / 4;
+  width: 100%;
+  height: 3.5em;
+  z-index: 902;
+  position: fixed;
+  bottom: 0;
+  border-top: 1px solid var(--physikos-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--physikos-blue-825);
+}
+
+.footer-left, .footer-right {
+  margin: 0px 10px;
+}
+
+.footer-left a {
+  font-size: 1.2em;
+  color: #900;
+  text-decoration: none;
+}
+
+.menu--open {
+  display: none;
+  transform: translateX(0);
+}
+
+.main_ds {
+  grid-column: 1 / 3;
+}
+
+/* CODEX: añadido para convertir el menú fijo en un panel móvil y apilar el contenido. */
+@media (max-width: 1100px) {
+  .app-shell {
+    grid-template-columns: 1fr;
   }
 
-  .app-header__module {
-    display: none;
+  .app-header {
+    grid-column: 1;
+  }
+
+  .app-header__content-namepage {
+    width: min(19.91em, calc(100vw - 12em));
+  }
+
+  .menu {
+    width: min(86vw, 22em);
+    transform: translateX(-105%);
+    box-shadow: 12px 0 28px rgb(6 27 62 / 18%);
+  }
+
+  .app-header__btnmenu {
+    width: 3em;
+  }
+
+  .menu--open {
+    display: block;
+    transform: translateX(0);
+  }
+
+  .menu-nav {
+    width: 100%;
+  }
+
+  .menu-overlay {
+    display: block;
+    position: fixed;
+    inset: 5em 0 0;
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.48);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease;
+  }
+
+  .menu-overlay--visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .main-content {
+    grid-column: 1;
+    padding-left: 0;
+  }
+
+  .generador-profile-section {
+    grid-template-columns: 5.7em minmax(0, 1fr);
+  }
+
+  .generador-page__hero-illustration {
+    grid-column: 1 / -1;
+    min-height: 10em;
+    background-position: center;
   }
 
   .layout-grid {
     grid-template-columns: 1fr;
   }
-
-  .main-content {
-    padding: 24px;
-  }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 700px) {
+  .app-header__content-namepage {
+    /*width: calc(100vw - 5.5em);*/
+    gap: 8px;
+  }
+
+  .app-header__brand {
+    width: min(15.5em, calc(100vw - 10em));
+  }
+
+  .app-header__logo {
+    background-size: contain;
+  }
+
+  .generador-profile-section {
+    width: calc(100% - 24px);
+    grid-template-columns: 4.4em minmax(0, 1fr);
+    gap: 1em;
+    padding: 1.25em;
+  }
+
+  .generador-profile-section__icon {
+    width: 4.2em;
+    height: 4.2em;
+    background-size: 2.7em;
+  }
+
+  .generador-profile-section__title {
+    font-size: clamp(2em, 8vw, 2.8em);
+  }
+
+  .generador-profile-section__note,
+  .generador-profile-section__introduction {
+    font-size: 1.15em;
+  }
+
+  .generador-page__hero-illustration {
+    display: none;
+  }
+
+  .layout-grid {
+    width: calc(100% - 24px);
+    gap: 16px;
+    margin-top: 1em;
+  }
+
   .two-columns {
     grid-template-columns: 1fr;
   }
 
   .panel {
-    padding: 20px;
+    padding: 18px;
+    border-radius: 12px;
+  }
+
+  .panel-heading {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .panel-heading h2 {
+    font-size: 18px;
+  }
+
+  .status {
+    flex: 0 0 auto;
+  }
+
+  .result-panel,
+  .empty-state,
+  .success-card {
+    min-height: 360px;
   }
 
   .result-details div {
@@ -467,23 +927,50 @@ textarea {
     gap: 5px;
   }
 
-    .app-header__content {
-    min-height: 68px;
-    gap: 12px;
+  .footer {
+    position: fixed;
+    grid-column: 1;
+    min-height: 4.5em;
+    height: auto;
+    padding: 10px 0;
   }
 
-  .app-header__logo {
-    width: 150px;
+  .main-content {
+    padding-bottom: 1em;
   }
 
-  .app-header__return {
-    width: 42px;
-    padding: 0;
-    justify-content: center;
-    font-size: 0;
+  .footer-left {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 420px) {
+  .generador-profile-section {
+    display: block;
   }
 
-  .app-header__return span {
-    font-size: 20px;
+  .generador-profile-section__icon {
+    margin-bottom: 1em;
+  }
+
+  .panel-heading {
+    flex-direction: column;
+  }
+
+  .status {
+    align-self: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

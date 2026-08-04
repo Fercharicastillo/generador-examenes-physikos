@@ -5,6 +5,8 @@ import {
   obtenerPlantillas,
   verificarSalud,
 } from "./api";
+import { DarkModeToggle } from "./components/DarkModeToggle";
+import { useDarkMode } from "./hooks/useDarkMode";
 import "./App.css";
 
 const PHYSIKOS_URL =
@@ -12,6 +14,7 @@ const PHYSIKOS_URL =
   "https://fercharicastillo.github.io/chari/";
 
 function App() {
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [plantillas, setPlantillas] = useState([]);
   const [plantilla, setPlantilla] = useState("1");
 
@@ -29,6 +32,7 @@ function App() {
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState("");
   const [resultado, setResultado] = useState(null);
+  const [menuAbierto, setMenuAbierto] = useState(false);
 
   const [estadoMotor, setEstadoMotor] =
   useState("conectando");
@@ -140,52 +144,70 @@ const informacionMotor = {
 
   return (
     <div className="app-shell">
-      <header className="app-header">
-  <div className="app-header__content">
-    <a
-      className="app-header__brand"
-      href={PHYSIKOS_URL}
-      title="Ir a Physikos"
-    >
-      <img
-        className="app-header__logo"
-        src="/brand/physikos.svg"
-        alt="Physikos"
-      />
-    </a>
-
-    <div className="app-header__module">
-      <span className="app-header__separator" />
-
-      <div>
-        <span className="app-header__label">
-          Herramientas docentes
-        </span>
-
-        <strong>Generador de exámenes</strong>
+      <div className="app-header">
+        <div className="app-header__content-namepage">
+          <a
+            className="app-header__brand"
+            href={PHYSIKOS_URL}
+            title="Ir a Physikos"
+          >
+            <div
+              className="app-header__logo"
+              alt="Physikos"
+            ></div>
+          </a>
+          <div
+            id="btn_menu"
+            className="app-header__btnmenu"
+            type="button"
+            aria-label={menuAbierto ? "Cerrar menú" : "Abrir menú"}
+            aria-controls="menu-principal"
+            aria-expanded={menuAbierto}
+            onClick={() => setMenuAbierto((abierto) => !abierto)}
+          />
+        </div>
+        <div className="app-header__content-actions">
+          <DarkModeToggle
+            isDarkMode={isDarkMode}
+            onChange={toggleDarkMode}
+          />
+        </div>
       </div>
-    </div>
 
-    <a
-      className="app-header__return"
-      href={PHYSIKOS_URL}
-    >
-      <span aria-hidden="true">←</span>
-      Volver a Physikos
-    </a>
-  </div>
-</header>
-
-      <main className="main-content">
-        <header className="page-header">
-          <div>
-            <p className="eyebrow">PHYSIKOS</p>
-            <h1>Generador de exámenes aleatorios</h1>
-            <p>
-              Crea evaluaciones individualizadas y sus
-              solucionarios.
-            </p>
+      <aside
+        id="menu-principal"
+        className={`menu ${menuAbierto ? "menu--open" : ""}`}
+      >
+        <nav className="menu-nav">
+          <div className="menu-nav__content">
+            <p className="menu-nav__content-inicio"><a href="#">Inicio</a></p>
+            <p className="menu-nav__content-preguntas"><a href="#">Preguntas</a></p>
+            <p className="current current-part menu-nav__content-generador"><a href="#">Generador</a></p>
+            <p className="menu-nav__content-plantillas"><a href="#">Plantillas</a></p>
           </div>
+        </nav>
+      </aside>
+
+      <div
+        className={`menu-overlay ${menuAbierto ? "menu-overlay--visible" : ""}`}
+        type="button"
+        aria-label="Cerrar menú"
+        tabIndex={menuAbierto ? 0 : -1}
+        onClick={() => setMenuAbierto(false)}
+      />
+
+      <div
+        className={`main-content ${menuAbierto ? "main_ds" : ""}`}
+        aria-label={menuAbierto ? "Exapandir main" : "Contraer main"}
+      >
+        <header className="generador-profile-section generador-page__hero">
+          <span className="generador-profile-section__icon" aria-hidden="true"></span>
+          <div className="generador-page__hero-content">
+              <h1 id="generador-page-title" className="generador-profile-section__title">Generador de exámenes aleatorios</h1>
+              <p className="generador-profile-section__note">Crea evaluaciones individualizadas y sus solucionarios.</p>
+              <p className="generador-profile-section__introduction">Physikós es una herramienta en constante desarrollo concebida como un recurso integral para docentes de Física y Matemática. Diseñada para optimizar el trabajo pedagógico, actualmente permite crear evaluaciones adaptadas y, próximamente, estará disponible como una aplicación de escritorio independiente.</p>
+          </div>
+          <div className="generador-page__hero-illustration" aria-hidden="true"></div>
         </header>
 
         <div className="layout-grid">
@@ -387,7 +409,17 @@ const informacionMotor = {
             )}
           </section>
         </div>
-      </main>
+      </div>
+
+      <footer className="footer">
+        <div className="footer-left">
+          <a href="#">Licencia</a>
+          <a href="#">| Git Hub</a>
+          <a href="#">| Versiones</a>
+        </div>
+        <div className="footer-right"></div>
+      </footer>
+
     </div>
   );
 }
