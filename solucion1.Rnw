@@ -63,15 +63,7 @@
 }
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{\includegraphics[width=2cm,height=2cm]{uuce}}
-\chead{
-	\fontsize{15}{15}\selectfont \so{\textsc{Universidad Central del Ecuador}}\\
-	\fontsize{12}{15}\selectfont \textsc{Facultad de Filosofía, Letras y Ciencias de la Educación}\\
-	\fontsize{15}{15}\selectfont \textsc{Dirección de Posgrado}\\
-	\fontsize{10}{15}\selectfont \textsc{Maestría en Pedagogía de las Ciencias Experimentales, Mención Física} 
-}
-\rhead{\includegraphics[width=2cm,height=2cm]{fuce}}
-%\lfoot{\textcolor{blueblackclaro}{P\hspace{0.5pt}á\hspace{0.5pt}g\hspace{0.5pt}i\hspace{0.5pt}n\hspace{0.5pt}a}\textcolor{blueblackintenso}{\ \textbf{\thepage $\mid$ \pageref{LastPage}}}}
+
 \rfoot{}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand*{\baselinestretch}{0.7}
@@ -90,16 +82,7 @@
 <<echo=FALSE>>=
 nombre<-nombre_actual
 @
-		\multicolumn{4}{|c|}{\textbf{DATOS PERSONALES}} \\ \cline{1-4}
 		\multicolumn{4}{|l|}{\textbf{\small APELLIDOS Y NOMBRES:} \Sexpr{nombre}} \\ \cline{1-4}
-		\multicolumn{2}{|p{0.2\textwidth}|}{\textbf{\small TIPO:} 1} & 
-		\multicolumn{1}{p{0.2\textwidth}|}{\textbf{\small GRUPO:} } &
-		\multicolumn{1}{l|}{\textbf{\small FECHA:} } \\ \cline{1-4}
-		\multicolumn{4}{|l|}{\textbf{\small DOCENTE:} MsC. Elsa Arequipa } \\ \cline{1-4}
-		\multicolumn{4}{|l|}{\textbf{\small ASISTENTE/ANALISTA/TÉCNICO:} Lic. Chari Fernando} \\ \cline{1-4}
-		\multicolumn{4}{l}{} \\ \cline{1-4}
-		\multicolumn{4}{|l|}{\textbf{\small UNIDAD 03:}  Trabajo y Energía} \\ 
-		\multicolumn{4}{|m{0.9\textwidth}|}{\textbf{\small OBJETIVO:} Evaluar el nivel de comprensión en relación a los temas de trabajo y energía, mediante la resolución de problemas, para identificar fortalezas y debilidades.} \\ \cline{1-4}
  
 		\multicolumn{4}{m{0.9\textwidth}}{
 		% Aqui va la pregunta uno
