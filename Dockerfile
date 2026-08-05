@@ -25,7 +25,7 @@ RUN apt-get update \
       zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN Rscript -e "paquetes <- c('plumber', 'knitr', 'zip'); install.packages(paquetes, repos='https://cloud.r-project.org', Ncpus=parallel::detectCores()); stopifnot(all(vapply(paquetes, requireNamespace, logical(1), quietly=TRUE)))"
+RUN Rscript -e "paquetes <- c('plumber', 'knitr', 'zip', 'jsonlite', 'callr'); install.packages(paquetes, repos='https://cloud.r-project.org', Ncpus=parallel::detectCores()); stopifnot(all(vapply(paquetes, requireNamespace, logical(1), quietly=TRUE)))"
 
 WORKDIR /app
 
