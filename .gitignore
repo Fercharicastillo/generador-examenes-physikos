@@ -5,7 +5,7 @@ frontend/.env
 
 # Resultados generados
 resultados/
-trabajos/
+/trabajos/
 *.pdf
 *.zip
 

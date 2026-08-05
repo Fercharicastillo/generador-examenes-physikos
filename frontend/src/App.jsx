@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   construirUrlDescarga,
-  generarExamenes,
+  consultarGeneracion,
+  crearGeneracion,
   obtenerPlantillas,
   verificarSalud,
 } from "./api";
@@ -32,6 +33,9 @@ function App() {
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState("");
   const [resultado, setResultado] = useState(null);
+  const [trabajoId, setTrabajoId] = useState(null);
+  const [configuracionTrabajo, setConfiguracionTrabajo] =
+  useState(null);
   const [menuAbierto, setMenuAbierto] = useState(false);
 
   const [estadoMotor, setEstadoMotor] =
@@ -91,14 +95,88 @@ function App() {
 }, []);
 
 
+useEffect(() => {
+  if (!trabajoId) {
+    return undefined;
+  }
+
+  let cancelado = false;
+  let temporizador;
+
+  async function consultarEstado() {
+    try {
+      const estadoActual = await consultarGeneracion(
+        trabajoId
+      );
+
+      if (cancelado) {
+        return;
+      }
+
+      setResultado(estadoActual);
+
+      if (estadoActual.estado === "completado") {
+        setCargando(false);
+        return;
+      }
+
+      if (estadoActual.estado === "fallido") {
+        setCargando(false);
+
+        setError(
+          estadoActual.error ||
+            estadoActual.mensaje ||
+            "No se pudo completar la generación."
+        );
+
+        return;
+      }
+
+      temporizador = window.setTimeout(
+        consultarEstado,
+        2000
+      );
+    } catch (error) {
+      if (cancelado) {
+        return;
+      }
+
+      setCargando(false);
+
+      setError(
+        `No se pudo consultar el trabajo: ${error.message}`
+      );
+    }
+  }
+
+  consultarEstado();
+
+  return () => {
+    cancelado = true;
+
+    if (temporizador) {
+      window.clearTimeout(temporizador);
+    }
+  };
+}, [trabajoId]);
+
   async function manejarGeneracion(evento) {
     evento.preventDefault();
 
     setError("");
     setResultado(null);
+    setTrabajoId(null);
+    setConfiguracionTrabajo(null);
 
     if (estudiantes.length === 0) {
       setError("Escribe al menos un estudiante.");
+      return;
+    }
+
+    if (estudiantes.length > 10) {
+      setError(
+        "En esta versión puedes generar un máximo de 10 evaluaciones."
+      );
       return;
     }
 
@@ -112,19 +190,28 @@ function App() {
     setCargando(true);
 
     try {
-      const respuesta = await generarExamenes({
-        plantilla: Number(plantilla),
-        estudiantes,
-        incluir_soluciones: incluirSoluciones,
-        semilla: semillaNumerica,
-      });
+  const configuracion = {
+    plantilla: Number(plantilla),
+    estudiantes,
+    incluir_soluciones: incluirSoluciones,
+    semilla: semillaNumerica,
+  };
 
-      setResultado(respuesta);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setCargando(false);
-    }
+  setConfiguracionTrabajo({
+    estudiantes: estudiantes.length,
+    incluirSoluciones,
+  });
+
+  const respuesta = await crearGeneracion(
+    configuracion
+  );
+
+  setResultado(respuesta);
+  setTrabajoId(respuesta.trabajo_id);
+} catch (error) {
+  setCargando(false);
+  setError(error.message);
+}
   }
 
 const informacionMotor = {
@@ -318,8 +405,8 @@ const informacionMotor = {
                 : estadoMotor === "desconectado"
                   ? "Motor no disponible"
                   : cargando
-                    ? "Generando PDF..."
-                    : `           Generar ${estudiantes.length} ${
+                    ? `Generando ${resultado?.progreso ?? 0}%`
+                    : `Generar ${estudiantes.length} ${
                         estudiantes.length === 1
                           ? "evaluación"
                           : "evaluaciones"
@@ -349,19 +436,62 @@ const informacionMotor = {
             )}
 
             {cargando && (
-              <div className="empty-state">
-                <div className="loader" />
+                <div className="empty-state">
+                  <div className="loader" />
 
-                <h3>Generando documentos</h3>
+                  <h3>Generando documentos</h3>
+
+                  <p>
+                    {resultado?.mensaje ||
+                      "Preparando el trabajo de generación."}
+                  </p>
+
+                  <div className="generation-progress">
+                    <progress
+                      max="100"
+                      value={resultado?.progreso ?? 0}
+                    />
+
+                    <span>
+                      {resultado?.progreso ?? 0}%
+                    </span>
+                  </div>
+
+                  {typeof resultado?.actual === "number" &&
+                    typeof resultado?.total === "number" && (
+                      <small>
+                        Evaluación {resultado.actual} de{" "}
+                        {resultado.total}
+                      </small>
+                    )}
+
+                  {resultado?.trabajo_id && (
+                    <small>
+                      Trabajo: {resultado.trabajo_id}
+                    </small>
+                  )}
+                </div>
+              )}
+            
+            {resultado?.estado === "fallido" && (
+              <div className="empty-state">
+                <div className="error-icon">!</div>
+
+                <h3>No se pudo completar la generación</h3>
 
                 <p>
-                  R está procesando las plantillas y compilando
-                  los PDF.
+                  {resultado.error ||
+                    resultado.mensaje ||
+                    "Ocurrió un error durante el proceso."}
                 </p>
+
+                <small>
+                  Trabajo: {resultado.trabajo_id}
+                </small>
               </div>
             )}
 
-            {resultado && (
+            {resultado?.estado === "completado" && (
               <div className="success-card">
                 <div className="success-icon">✓</div>
 
@@ -377,18 +507,18 @@ const informacionMotor = {
 
                   <div>
                     <dt>Estudiantes</dt>
-                    <dd>{resultado.estudiantes}</dd>
+                    <dd>{configuracionTrabajo?.estudiantes ?? resultado.total}</dd>
                   </div>
 
                   <div>
                     <dt>Exámenes</dt>
-                    <dd>{resultado.examenes_generados}</dd>
+                    <dd>{resultado.actual}</dd>
                   </div>
 
                   <div>
                     <dt>Soluciones</dt>
                     <dd>
-                      {resultado.soluciones_incluidas
+                      {configuracionTrabajo?.incluirSoluciones
                         ? "Incluidas"
                         : "No incluidas"}
                     </dd>
@@ -398,13 +528,16 @@ const informacionMotor = {
                 <a
                   className="download-button"
                   href={construirUrlDescarga(
-                    resultado.descarga
+                    resultado.trabajo_id
                   )}
+                  download
                 >
                   Descargar archivo ZIP
                 </a>
 
-                <small>{resultado.nombre_archivo}</small>
+                <small>
+                  {resultado.trabajo_id}.zip
+                </small>
               </div>
             )}
           </section>
