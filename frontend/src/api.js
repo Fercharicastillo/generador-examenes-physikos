@@ -28,8 +28,8 @@ export async function obtenerPlantillas() {
   return leerRespuesta(response);
 }
 
-export async function generarExamenes(configuracion) {
-  const response = await fetch(`${API_URL}/generar`, {
+export async function crearGeneracion(configuracion) {
+  const response = await fetch(`${API_URL}/generaciones`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -40,6 +40,18 @@ export async function generarExamenes(configuracion) {
   return leerRespuesta(response);
 }
 
-export function construirUrlDescarga(ruta) {
-  return `${API_URL}${ruta}`;
+export async function consultarGeneracion(trabajoId) {
+  const idSeguro = encodeURIComponent(trabajoId);
+
+  const response = await fetch(
+    `${API_URL}/generaciones/${idSeguro}`
+  );
+
+  return leerRespuesta(response);
+}
+
+export function construirUrlDescarga(trabajoId) {
+  const idSeguro = encodeURIComponent(trabajoId);
+
+  return `${API_URL}/generaciones/${idSeguro}/descarga`;
 }
