@@ -1,0 +1,127 @@
+{
+  "formato": "physikos-question",
+  "version_formato": 1,
+  "id": "cinematica-mrua-001",
+  "version_pregunta": 1,
+  "titulo": "Movimiento uniformemente acelerado",
+  "area": "fisica",
+  "tema": "cinematica",
+  "dificultad": "basica",
+  "enunciado": "Un móvil tiene una velocidad inicial de {{velocidad_inicial}} m/s y acelera uniformemente a {{aceleracion}} m/s^2 durante {{tiempo}} s.",
+  "incisos": [
+    {
+      "id": "a",
+      "texto": "Determine la velocidad final.",
+      "resultado": "velocidad_final"
+    },
+    {
+      "id": "b",
+      "texto": "Calcule la distancia recorrida.",
+      "resultado": "distancia"
+    }
+  ],
+  "variables": {
+    "velocidad_inicial": {
+      "tipo": "entero",
+      "minimo": 0,
+      "maximo": 10,
+      "unidad": "m/s"
+    },
+    "aceleracion": {
+      "tipo": "decimal",
+      "minimo": 1.5,
+      "maximo": 4.0,
+      "decimales": 1,
+      "unidad": "m/s^2"
+    },
+    "tiempo": {
+      "tipo": "entero",
+      "minimo": 3,
+      "maximo": 12,
+      "unidad": "s"
+    }
+  },
+  "restricciones": [
+    {
+      "descripcion": "La velocidad final no debe superar 60 m/s.",
+      "expresion": {
+        "operacion": "menor_o_igual",
+        "argumentos": [
+          {
+            "operacion": "sumar",
+            "argumentos": [
+              "velocidad_inicial",
+              {
+                "operacion": "multiplicar",
+                "argumentos": [
+                  "aceleracion",
+                  "tiempo"
+                ]
+              }
+            ]
+          },
+          60
+        ]
+      }
+    }
+  ],
+  "solucion": {
+    "pasos": [
+      {
+        "inciso": "a",
+        "explicacion": "Aplicamos la ecuación de velocidad para un movimiento con aceleración constante.",
+        "formula_latex": "v_f = v_0 + at",
+        "calculo": {
+          "operacion": "sumar",
+          "argumentos": [
+            "velocidad_inicial",
+            {
+              "operacion": "multiplicar",
+              "argumentos": [
+                "aceleracion",
+                "tiempo"
+              ]
+            }
+          ]
+        },
+        "guardar_como": "velocidad_final",
+        "unidad": "m/s",
+        "decimales": 2
+      },
+      {
+        "inciso": "b",
+        "explicacion": "Aplicamos la ecuación de posición para un movimiento con aceleración constante.",
+        "formula_latex": "d = v_0t + \\frac{1}{2}at^2",
+        "calculo": {
+          "operacion": "sumar",
+          "argumentos": [
+            {
+              "operacion": "multiplicar",
+              "argumentos": [
+                "velocidad_inicial",
+                "tiempo"
+              ]
+            },
+            {
+              "operacion": "multiplicar",
+              "argumentos": [
+                0.5,
+                "aceleracion",
+                {
+                  "operacion": "potencia",
+                  "argumentos": [
+                    "tiempo",
+                    2
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "guardar_como": "distancia",
+        "unidad": "m",
+        "decimales": 2
+      }
+    ]
+  }
+}
