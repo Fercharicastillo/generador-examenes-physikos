@@ -16,6 +16,7 @@ RUN apt-get update \
       libssl-dev \
       libxml2-dev \
       texlive-fonts-recommended \
+      texlive-lang-spanish \
       texlive-latex-base \
       texlive-latex-extra \
       texlive-latex-recommended \
@@ -32,6 +33,8 @@ WORKDIR /app
 COPY api ./api
 COPY R ./R
 COPY recursos ./recursos
+COPY preguntas ./preguntas
+COPY plantillas ./plantillas
 COPY prueba*.Rnw solucion*.Rnw ./
 
 RUN mkdir -p /app/trabajos
