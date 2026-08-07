@@ -453,41 +453,48 @@ const informacionMotor = {
   className="engine-selector"
   disabled={cargando}
 >
+
   <legend>Tipo de generación</legend>
 
   <label>
-    <input
-      type="radio"
-      name="motor"
-      value="rnw"
-      checked={motor === "rnw"}
-      onChange={() => setMotor("rnw")}
-    />
+  <input
+    type="radio"
+    name="motor"
+    value="rnw"
+    checked={motor === "rnw"}
+    onChange={() => setMotor("rnw")}
+  />
 
-    <span>Plantilla actual</span>
-  </label>
+  <span className="engine-option__content">
+    <strong>Plantilla actual</strong>
+    <small>Motor compatible con documentos Rnw</small>
+  </span>
+</label>
 
   <label>
-    <input
-      type="radio"
-      name="motor"
-      value="estructurado"
-      checked={motor === "estructurado"}
-      onChange={() =>
-        setMotor("estructurado")
-      }
-      disabled={
-        !motorEstructuradoDisponible ||
-        cargandoCatalogo
-      }
-    />
+  <input
+    type="radio"
+    name="motor"
+    value="estructurado"
+    checked={motor === "estructurado"}
+    onChange={() => setMotor("estructurado")}
+    disabled={
+      !motorEstructuradoDisponible ||
+      cargandoCatalogo
+    }
+  />
 
-    <span>
-      Banco de preguntas
-      {" "}
-      <small>Beta</small>
+  <span className="engine-option__content">
+    <span className="engine-option__heading">
+      <strong>Banco de preguntas</strong>
+      <small className="beta-badge">Beta</small>
     </span>
-  </label>
+
+    <small>
+      Selecciona preguntas y diseños estructurados
+    </small>
+  </span>
+</label>
 </fieldset>
 
 {!motorEstructuradoDisponible && (
@@ -557,9 +564,32 @@ const informacionMotor = {
   </label>
 
 <fieldset className="question-bank">
-  <legend>Preguntas</legend>
+  <div className="question-bank__heading">
+    <legend>Preguntas</legend>
 
-  {preguntas.map((pregunta) => {
+    <span className="question-bank__counter">
+      {preguntasSeleccionadas.length} seleccionada
+      {preguntasSeleccionadas.length === 1 ? "" : "s"}
+    </span>
+  </div>
+
+  {cargandoCatalogo && (
+  <div className="question-bank__state">
+    Cargando banco de preguntas...
+  </div>
+)}
+
+{!cargandoCatalogo &&
+  preguntas.length === 0 && (
+    <div className="question-bank__state">
+      Todavía no hay preguntas disponibles.
+    </div>
+  )}
+
+
+
+  <div className="question-bank__list">
+    {preguntas.map((pregunta) => {
     const id = String(
       obtenerValor(pregunta.id)
     );
@@ -610,30 +640,23 @@ const informacionMotor = {
           }}
         />
 
-        <span>
-          <strong>{titulo}</strong>
+        <span className="question-card__content">
+    <strong>{titulo}</strong>
 
-          <small>
-            {tema} · {dificultad}
-          </small>
-        </span>
+    <span className="question-card__metadata">
+      <small>{tema}</small>
+      <small>{dificultad}</small>
+    </span>
+  </span>
       </label>
     );
   })}
 
-  <small>
-    {preguntasSeleccionadas.length}
-    {" "}
-    pregunta
-    {preguntasSeleccionadas.length === 1
-      ? ""
-      : "s"}
-    {" "}
-    seleccionada
-    {preguntasSeleccionadas.length === 1
-      ? ""
-      : "s"}
-  </small>
+
+  </div>
+
+
+
 </fieldset>
 
   </>
