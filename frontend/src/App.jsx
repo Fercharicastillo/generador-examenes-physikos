@@ -4,6 +4,8 @@ import {
   consultarGeneracion,
   crearGeneracion,
   obtenerPlantillas,
+  obtenerPlantillasLatex,
+  obtenerPreguntas,
   verificarSalud,
 } from "./api";
 import { DarkModeToggle } from "./components/DarkModeToggle";
@@ -14,10 +16,40 @@ const PHYSIKOS_URL =
   import.meta.env.VITE_PHYSIKOS_URL ||
   "https://fercharicastillo.github.io/chari/";
 
+function obtenerValor(valor) {
+  if (Array.isArray(valor)) {
+    return valor[0];
+  }
+
+  return valor;
+}
+
 function App() {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [plantillas, setPlantillas] = useState([]);
   const [plantilla, setPlantilla] = useState("1");
+
+  const [motor, setMotor] = useState("rnw");
+
+const [preguntas, setPreguntas] = useState([]);
+const [preguntasSeleccionadas, setPreguntasSeleccionadas] =
+  useState([]);
+
+const [plantillasLatex, setPlantillasLatex] =
+  useState([]);
+
+const [plantillaLatex, setPlantillaLatex] =
+  useState("clasica");
+
+const [
+  motorEstructuradoDisponible,
+  setMotorEstructuradoDisponible,
+] = useState(false);
+
+const [
+  cargandoCatalogo,
+  setCargandoCatalogo,
+] = useState(false);
 
   const [textoEstudiantes, setTextoEstudiantes] = useState(
     [
@@ -89,6 +121,63 @@ function App() {
         `No fue posible conectar con el motor: ${error.message}`
       );
     }
+
+    try {
+  setCargandoCatalogo(true);
+
+  const [
+    respuestaPreguntas,
+    respuestaPlantillasLatex,
+  ] = await Promise.all([
+    obtenerPreguntas(),
+    obtenerPlantillasLatex(),
+  ]);
+
+  const banco =
+    respuestaPreguntas.preguntas || [];
+
+  const disponibles =
+    respuestaPlantillasLatex.plantillas || [];
+
+  setPreguntas(banco);
+  setPlantillasLatex(disponibles);
+
+  if (banco.length > 0) {
+    const primerId = obtenerValor(
+      banco[0].id
+    );
+
+    setPreguntasSeleccionadas([
+      String(primerId),
+    ]);
+  }
+
+  if (disponibles.length > 0) {
+    const primerId = obtenerValor(
+      disponibles[0].id
+    );
+
+    setPlantillaLatex(
+      String(primerId)
+    );
+  }
+
+  setMotorEstructuradoDisponible(
+    banco.length > 0 &&
+      disponibles.length > 0
+  );
+} catch (error) {
+  console.error(
+    "No se pudo cargar el motor estructurado:",
+    error
+  );
+
+  setPreguntas([]);
+  setPlantillasLatex([]);
+  setMotorEstructuradoDisponible(false);
+} finally {
+  setCargandoCatalogo(false);
+}
   }
 
   iniciarAplicacion();
@@ -187,20 +276,68 @@ useEffect(() => {
       return;
     }
 
+if (
+  motor === "estructurado" &&
+  preguntasSeleccionadas.length === 0
+) {
+  setError(
+    "Selecciona al menos una pregunta."
+  );
+
+  return;
+}
+
+if (
+  motor === "estructurado" &&
+  !motorEstructuradoDisponible
+) {
+  setError(
+    "El banco de preguntas no está disponible."
+  );
+
+  return;
+}
+
     setCargando(true);
 
     try {
-  const configuracion = {
-    plantilla: Number(plantilla),
-    estudiantes,
-    incluir_soluciones: incluirSoluciones,
-    semilla: semillaNumerica,
-  };
+  const configuracionComun = {
+  estudiantes,
+  incluir_soluciones: incluirSoluciones,
+  semilla: semillaNumerica,
+};
+
+const configuracion =
+  motor === "estructurado"
+    ? {
+        ...configuracionComun,
+        motor: "estructurado",
+        plantilla_latex:
+          plantillaLatex,
+        preguntas:
+          preguntasSeleccionadas,
+      }
+    : {
+        ...configuracionComun,
+        motor: "rnw",
+        plantilla: Number(
+          plantilla
+        ),
+      };
 
   setConfiguracionTrabajo({
-    estudiantes: estudiantes.length,
-    incluirSoluciones,
-  });
+  motor,
+  estudiantes: estudiantes.length,
+  incluirSoluciones,
+  preguntas:
+    motor === "estructurado"
+      ? preguntasSeleccionadas.length
+      : null,
+  plantilla:
+    motor === "estructurado"
+      ? plantillaLatex
+      : plantilla,
+});
 
   const respuesta = await crearGeneracion(
     configuracion
@@ -312,6 +449,55 @@ const informacionMotor = {
               <span className="status-dot" aria-hidden="true"/>{informacionMotor.texto}</span>
             </div>
 
+<fieldset
+  className="engine-selector"
+  disabled={cargando}
+>
+  <legend>Tipo de generación</legend>
+
+  <label>
+    <input
+      type="radio"
+      name="motor"
+      value="rnw"
+      checked={motor === "rnw"}
+      onChange={() => setMotor("rnw")}
+    />
+
+    <span>Plantilla actual</span>
+  </label>
+
+  <label>
+    <input
+      type="radio"
+      name="motor"
+      value="estructurado"
+      checked={motor === "estructurado"}
+      onChange={() =>
+        setMotor("estructurado")
+      }
+      disabled={
+        !motorEstructuradoDisponible ||
+        cargandoCatalogo
+      }
+    />
+
+    <span>
+      Banco de preguntas
+      {" "}
+      <small>Beta</small>
+    </span>
+  </label>
+</fieldset>
+
+{!motorEstructuradoDisponible && (
+  <small>
+    El banco estructurado todavía no está disponible.
+    Puedes continuar utilizando la plantilla actual.
+  </small>
+)}
+
+            {motor === "rnw" && (
             <label className="field">
               <span>Plantilla</span>
 
@@ -336,6 +522,123 @@ const informacionMotor = {
                 ))}
               </select>
             </label>
+            )}
+
+            {motor === "estructurado" && (
+  <>
+  <label className="field">
+    <span>Diseño de evaluación</span>
+
+    <select
+      value={plantillaLatex}
+      onChange={(event) =>
+        setPlantillaLatex(
+          event.target.value
+        )
+      }
+      disabled={cargando}
+    >
+      {plantillasLatex.map((item) => {
+        const id = String(
+          obtenerValor(item.id)
+        );
+
+        const nombre = String(
+          obtenerValor(item.nombre)
+        );
+
+        return (
+          <option key={id} value={id}>
+            {nombre}
+          </option>
+        );
+      })}
+    </select>
+  </label>
+
+<fieldset className="question-bank">
+  <legend>Preguntas</legend>
+
+  {preguntas.map((pregunta) => {
+    const id = String(
+      obtenerValor(pregunta.id)
+    );
+
+    const titulo = String(
+      obtenerValor(pregunta.titulo)
+    );
+
+    const tema = String(
+      obtenerValor(pregunta.tema)
+    );
+
+    const dificultad = String(
+      obtenerValor(
+        pregunta.dificultad
+      )
+    );
+
+    const seleccionada =
+      preguntasSeleccionadas.includes(id);
+
+    return (
+      <label
+        className="question-card"
+        key={id}
+      >
+        <input
+          type="checkbox"
+          checked={seleccionada}
+          disabled={cargando}
+          onChange={(event) => {
+            if (event.target.checked) {
+              setPreguntasSeleccionadas(
+                (actuales) => [
+                  ...actuales,
+                  id,
+                ]
+              );
+            } else {
+              setPreguntasSeleccionadas(
+                (actuales) =>
+                  actuales.filter(
+                    (actual) =>
+                      actual !== id
+                  )
+              );
+            }
+          }}
+        />
+
+        <span>
+          <strong>{titulo}</strong>
+
+          <small>
+            {tema} · {dificultad}
+          </small>
+        </span>
+      </label>
+    );
+  })}
+
+  <small>
+    {preguntasSeleccionadas.length}
+    {" "}
+    pregunta
+    {preguntasSeleccionadas.length === 1
+      ? ""
+      : "s"}
+    {" "}
+    seleccionada
+    {preguntasSeleccionadas.length === 1
+      ? ""
+      : "s"}
+  </small>
+</fieldset>
+
+  </>
+)}
+
 
             <label className="field">
               <span>Estudiantes</span>
@@ -472,7 +775,7 @@ const informacionMotor = {
                   )}
                 </div>
               )}
-            
+
             {resultado?.estado === "fallido" && (
               <div className="empty-state">
                 <div className="error-icon">!</div>
@@ -523,6 +826,17 @@ const informacionMotor = {
                         : "No incluidas"}
                     </dd>
                   </div>
+
+{configuracionTrabajo?.motor ===
+  "estructurado" && (
+  <div>
+    <dt>Preguntas</dt>
+    <dd>
+      {configuracionTrabajo.preguntas}
+    </dd>
+  </div>
+)}
+
                 </dl>
 
                 <a
