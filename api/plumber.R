@@ -159,22 +159,22 @@ function(req, res) {
     res$setHeader("Access-Control-Allow-Origin", origen_solicitud)
     res$setHeader("Vary", "Origin")
   }
-  
+
   res$setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, OPTIONS"
   )
-  
+
   res$setHeader(
     "Access-Control-Allow-Headers",
     "Content-Type"
   )
-  
+
   if (req$REQUEST_METHOD == "OPTIONS") {
     res$status <- 200
     return(list())
   }
-  
+
   plumber::forward()
 }
 
@@ -198,18 +198,18 @@ function() {
     CARPETA_PROYECTO,
     pattern = "^prueba[0-9]+\\.Rnw$"
   )
-  
+
   numeros <- sub(
     "^prueba([0-9]+)\\.Rnw$",
     "\\1",
     archivos
   )
-  
+
   plantillas <- lapply(
     seq_along(archivos),
     function(i) {
       numero <- as.integer(numeros[i])
-      
+
       list(
         id = numero,
         nombre = paste("Plantilla", numero),
@@ -223,7 +223,7 @@ function() {
       )
     }
   )
-  
+
   list(plantillas = plantillas)
 }
 
@@ -822,6 +822,237 @@ function(trabajo_id, res) {
   estado
 }
 
+#* Listar los PDF generados por un trabajo
+#* @param trabajo_id Identificador del trabajo
+#* @serializer unboxedJSON
+#* @response 200 Lista de archivos PDF
+#* @response 400 Identificador incorrecto
+#* @response 404 Trabajo no encontrado
+#* @response 409 Trabajo todavía no completado
+#* @get /generaciones/<trabajo_id>/archivos
+function(trabajo_id, res) {
+  patron_id <- paste0(
+    "^gen_",
+    "[0-9]{8}_",
+    "[0-9]{6}_",
+    "[a-z0-9]{12}$"
+  )
+
+  if (!grepl(patron_id, trabajo_id)) {
+    res$status <- 400
+
+    return(list(
+      error = "El identificador del trabajo no es válido."
+    ))
+  }
+
+  directorio_trabajo <- file.path(
+    CARPETA_TRABAJOS,
+    trabajo_id
+  )
+
+  if (!dir.exists(directorio_trabajo)) {
+    res$status <- 404
+
+    return(list(
+      error = "El trabajo solicitado no existe."
+    ))
+  }
+
+  estado <- tryCatch(
+    leer_estado_trabajo(directorio_trabajo),
+    error = function(error) error
+  )
+
+  if (inherits(estado, "error")) {
+    res$status <- 500
+
+    return(list(
+      error = paste(
+        "No se pudo leer el estado:",
+        conditionMessage(estado)
+      )
+    ))
+  }
+
+  if (!identical(estado$estado, "completado")) {
+    res$status <- 409
+
+    return(list(
+      error = "El trabajo todavía no está completado.",
+      estado = estado$estado
+    ))
+  }
+
+  tipos <- c(
+    examenes = "examen",
+    soluciones = "solucion"
+  )
+
+  archivos <- list()
+
+  for (carpeta in names(tipos)) {
+    directorio <- file.path(
+      directorio_trabajo,
+      "resultados",
+      carpeta
+    )
+
+    if (!dir.exists(directorio)) {
+      next
+    }
+
+    pdfs <- list.files(
+      path = directorio,
+      pattern = "\\.pdf$",
+      full.names = FALSE,
+      ignore.case = TRUE
+    )
+
+    if (length(pdfs) == 0) {
+      next
+    }
+
+    elementos <- lapply(
+      pdfs,
+      function(nombre) {
+        list(
+          nombre = nombre,
+          tipo = unname(tipos[[carpeta]])
+        )
+      }
+    )
+
+    archivos <- c(archivos, elementos)
+  }
+
+  list(
+    trabajo_id = trabajo_id,
+    archivos = archivos,
+    total = length(archivos)
+  )
+}
+
+#* Mostrar un PDF generado
+#* @param trabajo_id Identificador del trabajo
+#* @param tipo Tipo de documento: examen o solucion
+#* @param nombre Nombre del archivo PDF
+#* @serializer contentType list(type = "application/pdf")
+#* @response 200 Documento PDF
+#* @response 400 Datos incorrectos
+#* @response 404 Documento no encontrado
+#* @get /generaciones/<trabajo_id>/archivo
+function(trabajo_id, tipo, nombre, res) {
+  patron_id <- paste0(
+    "^gen_",
+    "[0-9]{8}_",
+    "[0-9]{6}_",
+    "[a-z0-9]{12}$"
+  )
+
+  if (!grepl(patron_id, trabajo_id)) {
+    res$status <- 400
+
+    return(charToRaw(
+      "El identificador del trabajo no es válido."
+    ))
+  }
+
+  carpetas_permitidas <- c(
+    examen = "examenes",
+    solucion = "soluciones"
+  )
+
+  if (!tipo %in% names(carpetas_permitidas)) {
+    res$status <- 400
+
+    return(charToRaw(
+      "El tipo de documento no es válido."
+    ))
+  }
+
+  nombre <- utils::URLdecode(nombre)
+
+  nombre_seguro <- basename(nombre)
+
+  if (
+    !identical(nombre, nombre_seguro) ||
+    !grepl("\\.pdf$", nombre, ignore.case = TRUE)
+  ) {
+    res$status <- 400
+
+    return(charToRaw(
+      "El nombre del documento no es válido."
+    ))
+  }
+
+  directorio_trabajo <- file.path(
+    CARPETA_TRABAJOS,
+    trabajo_id
+  )
+
+  if (!dir.exists(directorio_trabajo)) {
+    res$status <- 404
+
+    return(charToRaw(
+      "El trabajo solicitado no existe."
+    ))
+  }
+
+  archivo_pdf <- file.path(
+    directorio_trabajo,
+    "resultados",
+    unname(carpetas_permitidas[[tipo]]),
+    nombre_seguro
+  )
+
+  if (!file.exists(archivo_pdf)) {
+    res$status <- 404
+
+    return(charToRaw(
+      "El documento solicitado no existe."
+    ))
+  }
+
+  tamano <- file.info(archivo_pdf)$size
+
+  nombre_cabecera <- gsub(
+    '[\\r\\n"]',
+    "",
+    nombre_seguro
+  )
+
+  res$setHeader(
+    "Content-Disposition",
+    paste0(
+      'inline; filename="',
+      nombre_cabecera,
+      '"'
+    )
+  )
+
+  res$setHeader(
+    "Content-Length",
+    as.character(tamano)
+  )
+
+  res$setHeader(
+    "Cache-Control",
+    "private, no-store"
+  )
+
+  res$setHeader(
+    "X-Content-Type-Options",
+    "nosniff"
+  )
+
+  readBin(
+    con = archivo_pdf,
+    what = "raw",
+    n = tamano
+  )
+}
+
 #* Generar evaluaciones
 #* Recibe estudiantes y opciones de generación
 #* @param entrada:object* Configuración de la evaluación
@@ -838,46 +1069,46 @@ function(req, res, entrada = NULL) {
   if (is.null(entrada)) {
     entrada <- req$body
   }
-  
+
   if (is.null(entrada) || length(entrada) == 0) {
     res$status <- 400
-    
+
     return(list(
       error = "La petición no contiene datos."
     ))
   }
-  
+
   estudiantes <- unlist(
     entrada$estudiantes,
     use.names = FALSE
   )
-  
+
   estudiantes <- trimws(
     as.character(estudiantes)
   )
-  
+
   estudiantes <- estudiantes[nzchar(estudiantes)]
-  
+
   if (length(estudiantes) == 0) {
     res$status <- 400
-    
+
     return(list(
       error = "Debe proporcionar al menos un estudiante."
     ))
   }
-  
+
   if (length(estudiantes) > 100) {
     res$status <- 400
-    
+
     return(list(
       error = "El máximo provisional es de 100 estudiantes."
     ))
   }
-  
+
   plantilla <- as.integer(
     entrada$plantilla %||% 1
   )
-  
+
   incluir_soluciones <- if (
     is.null(entrada$incluir_soluciones)
   ) {
@@ -885,42 +1116,42 @@ function(req, res, entrada = NULL) {
   } else {
     as.logical(entrada$incluir_soluciones[[1]])
   }
-  
+
   semilla <- as.integer(
     entrada$semilla %||% 20260804
   )
-  
+
   if (
     length(plantilla) != 1 ||
     is.na(plantilla) ||
     plantilla < 1
   ) {
     res$status <- 400
-    
+
     return(list(
       error = "La plantilla no es válida."
     ))
   }
-  
+
   if (
     length(semilla) != 1 ||
     is.na(semilla)
   ) {
     res$status <- 400
-    
+
     return(list(
       error = "La semilla no es válida."
     ))
   }
-  
+
   archivo_plantilla <- file.path(
     CARPETA_PROYECTO,
     paste0("prueba", plantilla, ".Rnw")
   )
-  
+
   if (!file.exists(archivo_plantilla)) {
     res$status <- 404
-    
+
     return(list(
       error = paste(
         "No existe la plantilla",
@@ -928,25 +1159,25 @@ function(req, res, entrada = NULL) {
       )
     ))
   }
-  
+
   trabajo_id <- paste0(
     "examen_",
     format(Sys.time(), "%Y%m%d_%H%M%S"),
     "_",
     sprintf("%04d", sample.int(9999, 1))
   )
-  
+
   carpeta_trabajo <- file.path(
     CARPETA_TRABAJOS,
     trabajo_id
   )
-  
+
   dir.create(
     carpeta_trabajo,
     recursive = TRUE,
     showWarnings = FALSE
   )
-  
+
   resultado <- tryCatch(
     {
       generar_examenes(
@@ -962,23 +1193,23 @@ function(req, res, entrada = NULL) {
       error
     }
   )
-  
+
   if (inherits(resultado, "error")) {
     res$status <- 500
-    
+
     return(list(
       error = "No se pudieron generar los exámenes.",
       detalle = conditionMessage(resultado),
       trabajo_id = trabajo_id
     ))
   }
-  
+
   # Crear ZIP con los exámenes, soluciones y registro
   archivo_zip <- file.path(
     CARPETA_TRABAJOS,
     paste0(trabajo_id, ".zip")
   )
-  
+
   resultado_zip <- tryCatch(
     {
       zip::zipr(
@@ -987,34 +1218,34 @@ function(req, res, entrada = NULL) {
         root = carpeta_trabajo,
         include_directories = TRUE
       )
-      
+
       TRUE
     },
     error = function(error) {
       error
     }
   )
-  
+
   if (inherits(resultado_zip, "error")) {
     res$status <- 500
-    
+
     return(list(
       error = "Los PDF se generaron, pero no se pudo crear el ZIP.",
       detalle = conditionMessage(resultado_zip),
       trabajo_id = trabajo_id
     ))
   }
-  
+
   if (!file.exists(archivo_zip)) {
     res$status <- 500
-    
+
     return(list(
       error = "La operación terminó sin crear el archivo ZIP.",
       trabajo_id = trabajo_id
     ))
   }
-  
-  
+
+
   list(
     estado = "completado",
     trabajo_id = trabajo_id,
@@ -1047,28 +1278,28 @@ function(trabajo_id, res) {
     "[0-9]{6}_",
     "[0-9]{4}$"
   )
-  
+
   if (!grepl(patron_id, trabajo_id)) {
     res$status <- 400
-    
+
     return(charToRaw(
       "Identificador de trabajo incorrecto."
     ))
   }
-  
+
   archivo_zip <- file.path(
     CARPETA_TRABAJOS,
     paste0(trabajo_id, ".zip")
   )
-  
+
   if (!file.exists(archivo_zip)) {
     res$status <- 404
-    
+
     return(charToRaw(
       "El archivo solicitado no existe."
     ))
   }
-  
+
   res$setHeader(
     "Content-Disposition",
     paste0(
@@ -1077,12 +1308,12 @@ function(trabajo_id, res) {
       '.zip"'
     )
   )
-  
+
   res$setHeader(
     "Content-Length",
     as.character(file.info(archivo_zip)$size)
   )
-  
+
   readBin(
     con = archivo_zip,
     what = "raw",

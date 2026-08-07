@@ -1186,3 +1186,70 @@ nav.menu-nav .menu-nav__content a {
 [cambio="darkMode"] .question-card__metadata small {
   background: var(--dark-subtle-background);
 }
+
+.pdf-preview {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.pdf-preview__controls {
+  display: flex;
+  align-items: end;
+  gap: 0.75rem;
+}
+
+.pdf-preview__controls label {
+  display: grid;
+  flex: 1;
+  gap: 0.4rem;
+  text-align: left;
+}
+
+.pdf-preview__controls select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #d4deed;
+  border-radius: 0.65rem;
+  background: var(--color-background, #fff);
+  color: inherit;
+}
+
+.pdf-preview__controls a {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1rem;
+  border-radius: 0.65rem;
+  background: #087fa5;
+  color: #fff;
+  text-decoration: none;
+}
+
+.pdf-preview__frame {
+  width: 100%;
+  min-height: 620px;
+  border: 1px solid #d4deed;
+  border-radius: 0.75rem;
+  background: #e9eef5;
+}
+
+@media (max-width: 768px) {
+  .pdf-preview__controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pdf-preview__frame {
+    min-height: 520px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pdf-preview__frame {
+    min-height: 430px;
+  }
+}

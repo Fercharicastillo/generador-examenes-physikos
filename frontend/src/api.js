@@ -66,6 +66,38 @@ export async function consultarGeneracion(trabajoId) {
   return leerRespuesta(response);
 }
 
+export async function obtenerArchivosGeneracion(
+  trabajoId
+) {
+  const idSeguro = encodeURIComponent(trabajoId);
+
+  const response = await fetch(
+    `${API_URL}/generaciones/${idSeguro}/archivos`
+  );
+
+  return leerRespuesta(response);
+}
+
+export function construirUrlPdf(
+  trabajoId,
+  tipo,
+  nombre
+) {
+  const idSeguro = encodeURIComponent(trabajoId);
+
+  const parametros = new URLSearchParams({
+    tipo,
+    nombre,
+  });
+
+  return (
+    `${API_URL}/generaciones/${idSeguro}/archivo` +
+    `?${parametros.toString()}`
+  );
+}
+
+
+
 export function construirUrlDescarga(trabajoId) {
   const idSeguro = encodeURIComponent(trabajoId);
 
