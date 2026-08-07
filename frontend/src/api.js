@@ -28,6 +28,22 @@ export async function obtenerPlantillas() {
   return leerRespuesta(response);
 }
 
+export async function obtenerPreguntas() {
+  const response = await fetch(
+    `${API_URL}/preguntas`
+  );
+
+  return leerRespuesta(response);
+}
+
+export async function obtenerPlantillasLatex() {
+  const response = await fetch(
+    `${API_URL}/plantillas-latex`
+  );
+
+  return leerRespuesta(response);
+}
+
 export async function crearGeneracion(configuracion) {
   const response = await fetch(`${API_URL}/generaciones`, {
     method: "POST",
