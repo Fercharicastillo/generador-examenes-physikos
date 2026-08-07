@@ -7,6 +7,8 @@ import {
   obtenerPlantillasLatex,
   obtenerPreguntas,
   verificarSalud,
+  construirUrlPdf,
+  obtenerArchivosGeneracion,
 } from "./api";
 import { DarkModeToggle } from "./components/DarkModeToggle";
 import { useDarkMode } from "./hooks/useDarkMode";
@@ -72,6 +74,18 @@ const [
 
   const [estadoMotor, setEstadoMotor] =
   useState("conectando");
+
+  const [archivosGenerados, setArchivosGenerados] =
+  useState([]);
+
+const [archivoSeleccionado, setArchivoSeleccionado] =
+  useState(null);
+
+const [cargandoVistaPrevia, setCargandoVistaPrevia] =
+  useState(false);
+
+const [errorVistaPrevia, setErrorVistaPrevia] =
+  useState("");
 
   const estudiantes = useMemo(() => {
     return textoEstudiantes
@@ -249,6 +263,59 @@ useEffect(() => {
   };
 }, [trabajoId]);
 
+useEffect(() => {
+  if (
+    resultado?.estado !== "completado" ||
+    !resultado?.trabajo_id
+  ) {
+    return;
+  }
+
+  let cancelado = false;
+
+  async function cargarArchivos() {
+    setCargandoVistaPrevia(true);
+    setErrorVistaPrevia("");
+
+    try {
+      const respuesta =
+        await obtenerArchivosGeneracion(
+          resultado.trabajo_id
+        );
+
+      if (cancelado) {
+        return;
+      }
+
+      const archivos = respuesta.archivos || [];
+
+      setArchivosGenerados(archivos);
+
+      const primerExamen = archivos.find(
+        (archivo) => archivo.tipo === "examen"
+      );
+
+      setArchivoSeleccionado(
+        primerExamen || archivos[0] || null
+      );
+    } catch (error) {
+      if (!cancelado) {
+        setErrorVistaPrevia(error.message);
+      }
+    } finally {
+      if (!cancelado) {
+        setCargandoVistaPrevia(false);
+      }
+    }
+  }
+
+  cargarArchivos();
+
+  return () => {
+    cancelado = true;
+  };
+}, [resultado?.estado, resultado?.trabajo_id]);
+
   async function manejarGeneracion(evento) {
     evento.preventDefault();
 
@@ -256,6 +323,9 @@ useEffect(() => {
     setResultado(null);
     setTrabajoId(null);
     setConfiguracionTrabajo(null);
+    setArchivosGenerados([]);
+setArchivoSeleccionado(null);
+setErrorVistaPrevia("");
 
     if (estudiantes.length === 0) {
       setError("Escribe al menos un estudiante.");
@@ -365,6 +435,15 @@ const informacionMotor = {
     clase: "status-disconnected",
   },
 }[estadoMotor];
+
+const urlPdfSeleccionado =
+  archivoSeleccionado && resultado?.trabajo_id
+    ? construirUrlPdf(
+        resultado.trabajo_id,
+        archivoSeleccionado.tipo,
+        archivoSeleccionado.nombre
+      )
+    : "";
 
   return (
     <div className="app-shell">
@@ -824,6 +903,78 @@ const informacionMotor = {
                 <p className="eyebrow">PROCESO COMPLETADO</p>
 
                 <h3>Evaluaciones generadas</h3>
+
+                {cargandoVistaPrevia && (
+  <p>Cargando vista previa...</p>
+)}
+
+{errorVistaPrevia && (
+  <div className="message message-error">
+    <strong>No se pudo cargar la vista previa:</strong>
+    <span>{errorVistaPrevia}</span>
+  </div>
+)}
+
+{archivosGenerados.length > 0 && (
+  <div className="pdf-preview">
+    <div className="pdf-preview__controls">
+      <label>
+        <span>Documento</span>
+
+        <select
+          value={
+            archivoSeleccionado
+              ? `${archivoSeleccionado.tipo}:${archivoSeleccionado.nombre}`
+              : ""
+          }
+          onChange={(event) => {
+            const seleccionado =
+              archivosGenerados.find(
+                (archivo) =>
+                  `${archivo.tipo}:${archivo.nombre}` ===
+                  event.target.value
+              );
+
+            setArchivoSeleccionado(
+              seleccionado || null
+            );
+          }}
+        >
+          {archivosGenerados.map((archivo) => (
+            <option
+              key={`${archivo.tipo}:${archivo.nombre}`}
+              value={`${archivo.tipo}:${archivo.nombre}`}
+            >
+              {archivo.tipo === "examen"
+                ? "Examen"
+                : "Solución"}
+              {" — "}
+              {archivo.nombre}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      {urlPdfSeleccionado && (
+        <a
+          href={urlPdfSeleccionado}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Abrir PDF
+        </a>
+      )}
+    </div>
+
+    {urlPdfSeleccionado && (
+      <iframe
+        className="pdf-preview__frame"
+        src={urlPdfSeleccionado}
+        title={`Vista previa de ${archivoSeleccionado.nombre}`}
+      />
+    )}
+  </div>
+)}
 
                 <dl className="result-details">
                   <div>
