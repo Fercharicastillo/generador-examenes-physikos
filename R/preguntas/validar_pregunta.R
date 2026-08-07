@@ -1,3 +1,6 @@
+# Este mÃ³dulo usa auxiliares cargados previamente con source().
+# nolint start: object_usage_linter.
+
 extraer_marcadores <- function(texto) {
   if (!es_texto_escalar(texto)) {
     return(character())
@@ -27,7 +30,7 @@ extraer_marcadores <- function(texto) {
   )
 }
 
-contiene_comando_latex_peligroso <- function(texto) {
+tiene_latex_peligroso <- function(texto) {
   if (!es_texto_escalar(texto)) {
     return(FALSE)
   }
@@ -59,16 +62,20 @@ contiene_comando_latex_peligroso <- function(texto) {
 }
 
 validar_pregunta <- function(pregunta) {
-  errores <- character()
-  advertencias <- character()
+  diagnostico <- new.env(parent = emptyenv())
+  diagnostico$errores <- character()
+  diagnostico$advertencias <- character()
 
   agregar_error <- function(mensaje) {
-    errores <<- c(errores, mensaje)
+    diagnostico$errores <- c(
+      diagnostico$errores,
+      mensaje
+    )
   }
 
   agregar_advertencia <- function(mensaje) {
-    advertencias <<- c(
-      advertencias,
+    diagnostico$advertencias <- c(
+      diagnostico$advertencias,
       mensaje
     )
   }
@@ -117,7 +124,7 @@ validar_pregunta <- function(pregunta) {
 
   if (
     !es_texto_escalar(pregunta$formato) ||
-    pregunta$formato != "physikos-question"
+      pregunta$formato != "physikos-question"
   ) {
     agregar_error(
       "El campo 'formato' debe ser 'physikos-question'."
@@ -126,7 +133,7 @@ validar_pregunta <- function(pregunta) {
 
   if (
     !es_entero(pregunta$version_formato) ||
-    pregunta$version_formato != 1
+      pregunta$version_formato != 1
   ) {
     agregar_error(
       "La versión del formato debe ser 1."
@@ -135,10 +142,10 @@ validar_pregunta <- function(pregunta) {
 
   if (
     !es_texto_escalar(pregunta$id) ||
-    !grepl(
-      "^[a-z][a-z0-9]*(?:-[a-z0-9]+)+$",
-      pregunta$id
-    )
+      !grepl(
+        "^[a-z][a-z0-9]*(?:-[a-z0-9]+)+$",
+        pregunta$id
+      )
   ) {
     agregar_error(
       paste(
@@ -150,7 +157,7 @@ validar_pregunta <- function(pregunta) {
 
   if (
     !es_entero(pregunta$version_pregunta) ||
-    pregunta$version_pregunta < 1
+      pregunta$version_pregunta < 1
   ) {
     agregar_error(
       "'version_pregunta' debe ser un entero mayor o igual a 1."
@@ -183,9 +190,9 @@ validar_pregunta <- function(pregunta) {
 
   if (
     !is.list(variables) ||
-    length(variables) == 0 ||
-    is.null(names(variables)) ||
-    any(!nzchar(names(variables)))
+      length(variables) == 0 ||
+      is.null(names(variables)) ||
+      any(!nzchar(names(variables)))
   ) {
     agregar_error(
       "'variables' debe ser un objeto con al menos una variable."
@@ -225,11 +232,11 @@ validar_pregunta <- function(pregunta) {
 
       if (
         !es_texto_escalar(tipo) ||
-        !tipo %in% c(
-          "entero",
-          "decimal",
-          "constante"
-        )
+          !tipo %in% c(
+            "entero",
+            "decimal",
+            "constante"
+          )
       ) {
         agregar_error(
           paste0(
@@ -270,8 +277,8 @@ validar_pregunta <- function(pregunta) {
 
         if (
           es_numero_escalar(variable$minimo) &&
-          es_numero_escalar(variable$maximo) &&
-          variable$minimo > variable$maximo
+            es_numero_escalar(variable$maximo) &&
+            variable$minimo > variable$maximo
         ) {
           agregar_error(
             paste0(
@@ -285,7 +292,7 @@ validar_pregunta <- function(pregunta) {
       if (tipo == "entero") {
         if (
           es_numero_escalar(variable$minimo) &&
-          !es_entero(variable$minimo)
+            !es_entero(variable$minimo)
         ) {
           agregar_error(
             paste0(
@@ -297,7 +304,7 @@ validar_pregunta <- function(pregunta) {
 
         if (
           es_numero_escalar(variable$maximo) &&
-          !es_entero(variable$maximo)
+            !es_entero(variable$maximo)
         ) {
           agregar_error(
             paste0(
@@ -311,8 +318,8 @@ validar_pregunta <- function(pregunta) {
       if (tipo == "decimal") {
         if (
           !es_entero(variable$decimales) ||
-          variable$decimales < 0 ||
-          variable$decimales > 10
+            variable$decimales < 0 ||
+            variable$decimales > 10
         ) {
           agregar_error(
             paste0(
@@ -325,7 +332,7 @@ validar_pregunta <- function(pregunta) {
 
       if (
         tipo == "constante" &&
-        !es_numero_escalar(variable$valor)
+          !es_numero_escalar(variable$valor)
       ) {
         agregar_error(
           paste0(
@@ -485,8 +492,8 @@ validar_pregunta <- function(pregunta) {
         ruta = paste0(ruta, ".expresion")
       )
 
-      errores <- c(
-        errores,
+      diagnostico$errores <- c(
+        diagnostico$errores,
         errores_expresion
       )
     }
@@ -519,7 +526,7 @@ validar_pregunta <- function(pregunta) {
 
       if (
         !es_texto_escalar(paso$inciso) ||
-        !paso$inciso %in% ids_incisos
+          !paso$inciso %in% ids_incisos
       ) {
         agregar_error(
           paste0(
@@ -546,7 +553,7 @@ validar_pregunta <- function(pregunta) {
           )
         )
       } else if (
-        contiene_comando_latex_peligroso(
+        tiene_latex_peligroso(
           paso$formula_latex
         )
       ) {
@@ -565,17 +572,17 @@ validar_pregunta <- function(pregunta) {
         ruta = paste0(ruta, ".calculo")
       )
 
-      errores <- c(
-        errores,
+      diagnostico$errores <- c(
+        diagnostico$errores,
         errores_calculo
       )
 
       if (
         !es_texto_escalar(paso$guardar_como) ||
-        !grepl(
-          "^[A-Za-z][A-Za-z0-9_]*$",
-          paso$guardar_como
-        )
+          !grepl(
+            "^[A-Za-z][A-Za-z0-9_]*$",
+            paso$guardar_como
+          )
       ) {
         agregar_error(
           paste0(
@@ -618,8 +625,8 @@ validar_pregunta <- function(pregunta) {
 
       if (
         !es_entero(paso$decimales) ||
-        paso$decimales < 0 ||
-        paso$decimales > 10
+          paso$decimales < 0 ||
+          paso$decimales > 10
       ) {
         agregar_error(
           paste0(
@@ -662,9 +669,9 @@ validar_pregunta <- function(pregunta) {
   }
 
   list(
-    valida = length(errores) == 0,
-    errores = unique(errores),
-    advertencias = unique(advertencias)
+    valida = length(diagnostico$errores) == 0,
+    errores = unique(diagnostico$errores),
+    advertencias = unique(diagnostico$advertencias)
   )
 }
 
@@ -707,3 +714,5 @@ validar_archivo_pregunta <- function(ruta) {
   resultado$pregunta <- pregunta
   resultado
 }
+
+# nolint end

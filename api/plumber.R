@@ -38,6 +38,19 @@ source(
   file.path(
     CARPETA_PROYECTO,
     "R",
+    "cargar_motor_estructurado.R"
+  ),
+  encoding = "UTF-8"
+)
+
+cargar_motor_estructurado(
+  carpeta_proyecto = CARPETA_PROYECTO
+)
+
+source(
+  file.path(
+    CARPETA_PROYECTO,
+    "R",
     "trabajos",
     "estado_trabajo.R"
   ),
@@ -214,6 +227,114 @@ function() {
   list(plantillas = plantillas)
 }
 
+#* Mostrar el banco de preguntas estructuradas
+#* @get /preguntas
+function(res) {
+  archivos <- list.files(
+    path = file.path(
+      CARPETA_PROYECTO,
+      "preguntas"
+    ),
+    pattern = "\\.json$",
+    recursive = TRUE,
+    full.names = TRUE
+  )
+
+  preguntas <- lapply(
+    archivos,
+    function(archivo) {
+      pregunta <- tryCatch(
+        {
+          jsonlite::read_json(
+            archivo,
+            simplifyVector = FALSE
+          )
+        },
+        error = function(error) {
+          error
+        }
+      )
+
+      if (inherits(pregunta, "error")) {
+        return(NULL)
+      }
+
+      list(
+        id = pregunta$id,
+        titulo = pregunta$titulo,
+        area = pregunta$area,
+        tema = pregunta$tema,
+        dificultad = pregunta$dificultad,
+        enunciado = pregunta$enunciado,
+        cantidad_incisos = length(
+          pregunta$incisos
+        )
+      )
+    }
+  )
+
+  preguntas <- Filter(
+    Negate(is.null),
+    preguntas
+  )
+
+  list(
+    preguntas = preguntas,
+    total = length(preguntas)
+  )
+}
+
+#* Mostrar las plantillas del motor estructurado
+#* @get /plantillas-latex
+function() {
+  carpeta_plantillas <- file.path(
+    CARPETA_PROYECTO,
+    "plantillas",
+    "latex"
+  )
+
+  directorios <- list.dirs(
+    carpeta_plantillas,
+    recursive = FALSE,
+    full.names = FALSE
+  )
+
+  plantillas <- lapply(
+    directorios,
+    function(id) {
+      nombre <- switch(
+        id,
+        clasica = "Clásica",
+        minimalista = "Minimalista",
+        id
+      )
+
+      list(
+        id = id,
+        nombre = nombre,
+        tiene_examen = file.exists(
+          file.path(
+            carpeta_plantillas,
+            id,
+            "examen.tex.tpl"
+          )
+        ),
+        tiene_solucion = file.exists(
+          file.path(
+            carpeta_plantillas,
+            id,
+            "solucion.tex.tpl"
+          )
+        )
+      )
+    }
+  )
+
+  list(
+    plantillas = plantillas
+  )
+}
+
 #* Crear una generación en segundo plano
 #* @param entrada:object* Configuración de la evaluación
 #* @parser json
@@ -233,6 +354,22 @@ function(req, res, entrada = NULL) {
 
     return(list(
       error = "La petición no contiene datos."
+    ))
+  }
+
+  motor <- if (is.null(entrada$motor)) {
+    "rnw"
+  } else {
+    as.character(
+      entrada$motor[[1]]
+    )
+  }
+
+  if (!motor %in% c("rnw", "estructurado")) {
+    res$status <- 400
+
+    return(list(
+      error = "El motor solicitado no es válido."
     ))
   }
 
@@ -263,9 +400,7 @@ function(req, res, entrada = NULL) {
     ))
   }
 
-  plantilla <- suppressWarnings(
-    as.integer(entrada$plantilla %||% 1)
-  )
+  plantilla <- NULL
 
   semilla <- suppressWarnings(
     as.integer(entrada$semilla %||% 20260804)
@@ -282,18 +417,6 @@ function(req, res, entrada = NULL) {
   }
 
   if (
-    length(plantilla) != 1 ||
-    is.na(plantilla) ||
-    plantilla < 1
-  ) {
-    res$status <- 400
-
-    return(list(
-      error = "La plantilla no es válida."
-    ))
-  }
-
-  if (
     length(semilla) != 1 ||
     is.na(semilla)
   ) {
@@ -304,46 +427,127 @@ function(req, res, entrada = NULL) {
     ))
   }
 
-  archivo_plantilla <- file.path(
-    CARPETA_PROYECTO,
-    paste0("prueba", plantilla, ".Rnw")
+  if (identical(motor, "estructurado")) {
+  plantilla_latex <- as.character(
+    entrada$plantilla_latex[[1]]
   )
 
-  if (!file.exists(archivo_plantilla)) {
-    res$status <- 404
+  if (
+    length(plantilla_latex) != 1 ||
+      !plantilla_latex %in% c(
+        "clasica",
+        "minimalista"
+      )
+  ) {
+    res$status <- 400
 
     return(list(
-      error = paste(
-        "No existe la plantilla",
-        plantilla
-      )
+      error = "La plantilla LaTeX no es válida."
     ))
   }
 
-  if (incluir_soluciones) {
-    archivo_solucion <- file.path(
-      CARPETA_PROYECTO,
-      paste0("solucion", plantilla, ".Rnw")
+  preguntas_ids <- as.character(
+    unlist(
+      entrada$preguntas,
+      use.names = FALSE
+    )
+  )
+
+  validacion_preguntas <- tryCatch(
+    {
+      cargar_preguntas_ids(
+        ids = preguntas_ids,
+        carpeta_preguntas = file.path(
+          CARPETA_PROYECTO,
+          "preguntas"
+        )
+      )
+    },
+    error = function(error) {
+      error
+    }
+  )
+
+  if (
+    inherits(
+      validacion_preguntas,
+      "error"
+    )
+  ) {
+    res$status <- 400
+
+    return(list(
+      error = "La selección de preguntas no es válida.",
+      detalle =
+        conditionMessage(
+          validacion_preguntas
+        )
+    ))
+  }
+}
+
+  if (identical(motor, "rnw")) {
+    plantilla <- suppressWarnings(
+      as.integer(
+        entrada$plantilla %||% 1
+      )
     )
 
-    if (!file.exists(archivo_solucion)) {
-      res$status <- 404
+    if (
+      length(plantilla) != 1 ||
+        is.na(plantilla) ||
+        plantilla < 1
+    ) {
+      res$status <- 400
 
       return(list(
-        error = paste(
-          "No existe la solución de la plantilla",
-          plantilla
-        )
+        error = "La plantilla no es válida."
       ))
+    }
+
+    archivo_plantilla <- file.path(
+      CARPETA_PROYECTO,
+      paste0("prueba", plantilla, ".Rnw")
+    )
+
+    if (!file.exists(archivo_plantilla)) {
+      res$status <- 404
+      return(list(error = paste("No existe la plantilla", plantilla)))
+    }
+
+    if (incluir_soluciones) {
+      archivo_solucion <- file.path(
+        CARPETA_PROYECTO,
+        paste0("solucion", plantilla, ".Rnw")
+      )
+
+      if (!file.exists(archivo_solucion)) {
+        res$status <- 404
+        return(list(error = paste("No existe la solución de la plantilla", plantilla)))
+      }
     }
   }
 
+  if (identical(motor, "estructurado")) {
   solicitud <- list(
-    plantilla = plantilla,
+    motor = motor,
+    plantilla_latex = plantilla_latex,
+    preguntas = preguntas_ids,
     estudiantes = estudiantes,
-    incluir_soluciones = incluir_soluciones,
+    incluir_soluciones =
+      incluir_soluciones,
     semilla = semilla
   )
+} else {
+  solicitud <- list(
+    motor = motor,
+    plantilla = plantilla,
+    estudiantes = estudiantes,
+    incluir_soluciones =
+      incluir_soluciones,
+    semilla = semilla
+  )
+}
 
 try(
   limpiar_trabajos(
@@ -431,6 +635,19 @@ if (length(procesos_activos) >= 1) {
               "generar_examenes.R"
             ),
             encoding = "UTF-8"
+          )
+
+          source(
+            file.path(
+              carpeta_proyecto,
+              "R",
+              "cargar_motor_estructurado.R"
+            ),
+            encoding = "UTF-8"
+          )
+
+          cargar_motor_estructurado(
+           carpeta_proyecto = carpeta_proyecto
           )
 
           source(

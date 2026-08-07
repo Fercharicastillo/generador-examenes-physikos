@@ -1,4 +1,4 @@
-OPERACIONES_PERMITIDAS <- list(
+operaciones_permitidas <- list(
   sumar = c(minimo = 2, maximo = Inf),
   restar = c(minimo = 2, maximo = 2),
   multiplicar = c(minimo = 2, maximo = Inf),
@@ -31,9 +31,9 @@ es_entero <- function(valor) {
 }
 
 validar_expresion <- function(
-    expresion,
-    referencias_permitidas,
-    ruta = "expresion"
+  expresion,
+  referencias_permitidas,
+  ruta = "expresion"
 ) {
   errores <- character()
 
@@ -86,7 +86,7 @@ validar_expresion <- function(
     return(errores)
   }
 
-  if (!operacion %in% names(OPERACIONES_PERMITIDAS)) {
+  if (!operacion %in% names(operaciones_permitidas)) {
     errores <- c(
       errores,
       paste0(
@@ -112,7 +112,7 @@ validar_expresion <- function(
     return(errores)
   }
 
-  aridad <- OPERACIONES_PERMITIDAS[[operacion]]
+  aridad <- operaciones_permitidas[[operacion]]
   cantidad <- length(argumentos)
 
   if (cantidad < aridad[["minimo"]]) {
@@ -131,7 +131,7 @@ validar_expresion <- function(
 
   if (
     is.finite(aridad[["maximo"]]) &&
-    cantidad > aridad[["maximo"]]
+      cantidad > aridad[["maximo"]]
   ) {
     errores <- c(
       errores,
